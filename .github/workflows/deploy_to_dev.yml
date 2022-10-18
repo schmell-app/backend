@@ -27,7 +27,6 @@ jobs:
         with:
           name: "config-gcp-file.json"
           json: ${{ secrets.GCP_CONFIG_JSON }}
-          dir: "src/main/resources/"
       - name: Execute Gradle build
         run: ./gradlew build
 
