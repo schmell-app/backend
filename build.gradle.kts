@@ -44,7 +44,7 @@ dependencies {
 	//Other
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("commons-io:commons-io:2.6")
+	implementation("commons-io:commons-io:2.11.0")
 
 	//Dev tools
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -72,6 +72,9 @@ tasks.withType<KotlinCompile> {
 	}
 }
 
+tasks.getByName<Jar>("jar") {
+	enabled = false
+}
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
