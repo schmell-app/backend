@@ -18,7 +18,6 @@ repositories {
 	maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-extra["springCloudGcpVersion"] = "3.3.0"
 extra["springCloudVersion"] = "2021.0.4"
 
 dependencies {
@@ -34,9 +33,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-	//GCP
-	implementation("com.google.cloud:google-cloud-storage")
-	implementation("org.springframework.cloud:spring-cloud-gcp-starter-storage:1.2.8.RELEASE")
+	//AWS
+	implementation(platform("software.amazon.awssdk:bom:2.15.14"))
+	implementation ("software.amazon.awssdk:s3:2.15.14")
+
 
 	//Logging
 	implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
@@ -60,7 +60,6 @@ dependencies {
 
 dependencyManagement {
 	imports {
-		mavenBom("com.google.cloud:spring-cloud-gcp-dependencies:${property("springCloudGcpVersion")}")
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
 	}
 }

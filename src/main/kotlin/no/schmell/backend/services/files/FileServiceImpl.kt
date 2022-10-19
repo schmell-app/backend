@@ -2,40 +2,35 @@ package no.schmell.backend.services.files
 
 import mu.KLogging
 import no.schmell.backend.dtos.files.FileDto
-import no.schmell.backend.lib.DataBucketUtil
-import no.schmell.backend.lib.exceptions.BadRequestException
-import no.schmell.backend.lib.exceptions.GCPFileUploadException
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetUrlRequest
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import java.util.*
 import javax.transaction.Transactional
 
 @Service
 @Transactional
-class FileServiceImpl(val dataBucketUtil: DataBucketUtil) : FileService{
+class FileServiceImpl(var s3Client: S3Client) : FileService{
 
     companion object: KLogging()
 
-    override fun uploadFile(file: MultipartFile, gcpDirectoryName: String): FileDto {
-        val originalFileName = file.originalFilename ?: throw BadRequestException("Original file name is null")
-        val path: Path = File(originalFileName).toPath()
-        val fileDto: FileDto
+    @Value("\$aws.bucketName")
+    lateinit var bucketName: String
 
-        try {
-            val contentType: String = Files.probeContentType(path)
-            fileDto = dataBucketUtil.uploadFile(file, originalFileName, contentType, gcpDirectoryName)
-            logger.info(
-                "File uploaded successfully, file name: {} and url: {}",
-                fileDto.fileName,
-                fileDto.fileUrl
-            )
-        } catch (e: Exception) {
-            logger.error("Error occurred while uploading. Error: ", e)
-            throw GCPFileUploadException("Error occurred while uploading")
-        }
+    override fun uploadFile(file: MultipartFile, directoryName: String): FileDto {
+        val originFileName: String? = file.originalFilename
+        val key = "$directoryName/$originFileName"
 
-        return fileDto
+        val response = s3Client.putObject(
+                PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+                RequestBody.fromBytes(file.bytes))
+        val request: GetUrlRequest = GetUrlRequest.builder().bucket(bucketName).key(key).build()
+        val url: String = s3Client.utilities().getUrl(request).toExternalForm()
+
+        return FileDto(url, key, response.sdkHttpResponse().isSuccessful, response.sdkHttpResponse().statusCode())
     }
 }

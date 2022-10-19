@@ -2,7 +2,7 @@ package no.schmell.backend.entities.auth
 
 import mu.KLogging
 import no.schmell.backend.dtos.auth.UserDto
-import no.schmell.backend.lib.getSignedUrl
+import java.net.URL
 import javax.persistence.*
 
 
@@ -41,7 +41,7 @@ class User(
 
     companion object: KLogging()
 
-    fun toUserDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): UserDto {
+    fun toUserDto(): UserDto {
 
         return this.let{
             UserDto(
@@ -54,7 +54,7 @@ class User(
                 it.alertsForTasks,
                 it.alertsForDeadlines,
                 it.profilePicture,
-                getSignedUrl(gcpProjectId, gcpBucketId, gcpConfigFile, this.profilePicture),
+                URL(""),
             )
         }
     }

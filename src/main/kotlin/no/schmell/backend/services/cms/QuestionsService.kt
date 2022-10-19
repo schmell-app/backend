@@ -8,14 +8,13 @@ import no.schmell.backend.dtos.cms.QuestionDto
 import no.schmell.backend.dtos.cms.QuestionFilter
 import no.schmell.backend.dtos.cms.QuestionListDto
 import no.schmell.backend.entities.cms.Question
-import no.schmell.backend.lib.getSignedUrl
 import no.schmell.backend.services.files.FileService
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
+import java.net.URL
 
 @Service
 class QuestionsService(
@@ -24,15 +23,6 @@ class QuestionsService(
     val fileService: FileService,
     val gamesService: GamesService
 ) {
-
-    @Value("\${gcp.config.file}")
-    lateinit var gcpConfigFile: String
-
-    @Value("\${gcp.project.id}")
-    lateinit var gcpProjectId: String
-
-    @Value("\${gcp.bucket.id}")
-    lateinit var gcpBucketId: String
 
     companion object : KLogging()
 
@@ -49,7 +39,7 @@ class QuestionsService(
             questions = questions.sortedBy { it.phase }
         }
 
-        return questions.map { question -> question.toQuestionListDto(gcpProjectId, gcpBucketId, gcpConfigFile) }
+        return questions.map { question -> question.toQuestionListDto() }
     }
 
     fun createSeveral(dto: List<CreateQuestionParams>): List<QuestionDto> {
@@ -59,23 +49,23 @@ class QuestionsService(
             question.fromCreateToDto(week, game).toQuestionEntity()
         })
 
-        return savedQuestions.map { question -> question.toQuestionDto(gcpProjectId, gcpBucketId, gcpConfigFile) }
+        return savedQuestions.map { question -> question.toQuestionDto() }
     }
 
     fun getById(id: Int): QuestionDto {
         val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return question.toQuestionDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+        return question.toQuestionDto()
     }
 
     fun create(dto: CreateQuestionParams): QuestionDto {
         val relatedWeek = weeksService.getById(dto.relatedWeek)
         val relatedGame = gamesService.getById(dto.relatedGame)
-        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto()
     }
 
     fun update(id: Int, question: QuestionDto): QuestionDto {
         return if (questionRepository.existsById(id)) {
-            questionRepository.save(question.toQuestionEntity()).toQuestionDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+            questionRepository.save(question.toQuestionEntity()).toQuestionDto()
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
@@ -96,7 +86,7 @@ class QuestionsService(
                         question.function,
                         question.punishment,
                         question.questionPicture,
-                        getSignedUrl(gcpProjectId, gcpProjectId, gcpConfigFile, question.questionPicture),
+                        URL(""),
                         question.relatedGame
                     )
                 )
@@ -147,7 +137,7 @@ class QuestionsService(
                 question.punishment,
                 uploadedFile.fileName,
                 question.relatedGame,
-            )).toQuestionDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+            )).toQuestionDto()
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 }

@@ -27,25 +27,25 @@ class Comment(
     @JoinColumn(name="task_id")
     val relatedTask : Task,
 ) {
-    fun toCommentDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): CommentDto {
+    fun toCommentDto(): CommentDto {
         return this.let {
             CommentDto(
                 it.id,
                 it.createdDate,
                 it.comment,
-                it.writtenBy.toUserDto(gcpProjectId, gcpBucketId, gcpConfigFile),
-                it.relatedTask.toTaskDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+                it.writtenBy.toUserDto(),
+                it.relatedTask.toTaskDto()
             )
         }
     }
 
-    fun toCommentListDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): CommentListDto {
+    fun toCommentListDto(): CommentListDto {
         return this.let {
             CommentListDto(
                 it.id,
                 it.createdDate,
                 it.comment,
-                it.writtenBy.toUserDto(gcpProjectId, gcpBucketId, gcpConfigFile),
+                it.writtenBy.toUserDto(),
                 it.relatedTask.id!!
             )
         }

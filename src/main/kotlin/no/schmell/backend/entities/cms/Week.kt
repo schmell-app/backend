@@ -17,11 +17,11 @@ class Week(
     @Column(name = "week_number", nullable = false)
     val weekNumber: Int,
 ) {
-    fun toWeekDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): WeekDto {
+    fun toWeekDto(): WeekDto {
         return this.let {
             WeekDto(
                 it.id,
-                it.relatedGame.toGameDto(gcpProjectId, gcpBucketId, gcpConfigFile),
+                it.relatedGame.toGameDto(),
                 it.weekNumber
             )
         }

@@ -51,7 +51,7 @@ class Task(
     @Column(name = "last_updated", nullable = false)
     val lastUpdated : LocalDateTime,
 ) {
-    fun toTaskDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): TaskDto {
+    fun toTaskDto(): TaskDto {
         return this.let {
             TaskDto(
                 it.id,
@@ -62,8 +62,8 @@ class Task(
                 it.deadline,
                 it.category,
                 it.priority,
-                it.responsibleUser.toUserDto(gcpProjectId, gcpBucketId, gcpConfigFile),
-                it.relatedGame?.toGameDto(gcpProjectId, gcpBucketId, gcpConfigFile),
+                it.responsibleUser.toUserDto(),
+                it.relatedGame?.toGameDto(),
                 it.lastUpdated
             )
         }

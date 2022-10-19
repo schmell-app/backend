@@ -23,13 +23,13 @@ class Idea(
     @JoinColumn(name = "application_user_id")
     val createdBy: User,
 ) {
-    fun toIdeaDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): IdeaDto {
+    fun toIdeaDto(): IdeaDto {
         return this.let {
             IdeaDto(
                 it.id,
                 it.ideaText,
                 it.category,
-                it.createdBy.toUserDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+                it.createdBy.toUserDto()
             )
         }
     }

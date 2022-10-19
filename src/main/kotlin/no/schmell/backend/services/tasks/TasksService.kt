@@ -5,7 +5,6 @@ import no.schmell.backend.utils.sortTaskList
 import no.schmell.backend.dtos.tasks.*
 import no.schmell.backend.services.auth.AuthService
 import no.schmell.backend.services.cms.GamesService
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -17,15 +16,6 @@ class TasksService(
     val authService: AuthService,
     val gamesService: GamesService) {
 
-    @Value("\${gcp.config.file}")
-    lateinit var gcpConfigFile: String
-
-    @Value("\${gcp.project.id}")
-    lateinit var gcpProjectId: String
-
-    @Value("\${gcp.bucket.id}")
-    lateinit var gcpBucketId: String
-
     fun getAll(filters: TaskFilters): List<TaskDto> {
         var tasks = tasksRepository.findAll()
 
@@ -36,12 +26,12 @@ class TasksService(
         if (filters.responsibleUser != null) tasks = tasks.filter { it.responsibleUser.id == filters.responsibleUser }
         if (filters.sort != null) tasks = sortTaskList(tasks, filters.sort)
 
-        return tasks.map { task -> task.toTaskDto(gcpProjectId, gcpBucketId, gcpConfigFile) }
+        return tasks.map { task -> task.toTaskDto() }
     }
 
     fun getById(id: Int): TaskDto {
         val task = tasksRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return task.toTaskDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+        return task.toTaskDto()
     }
 
     fun create(createDto: CreateTaskParams): TaskDto {
@@ -50,12 +40,12 @@ class TasksService(
 
         return tasksRepository.save(
             createDto.fromCreateToDto(responsibleUser, relatedGame).toTaskEntity()
-        ).toTaskDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+        ).toTaskDto()
     }
 
     fun update(id: Int, task: TaskDto): TaskDto {
         return if (tasksRepository.existsById(id)) {
-            tasksRepository.save(task.toTaskEntity()).toTaskDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+            tasksRepository.save(task.toTaskEntity()).toTaskDto()
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
