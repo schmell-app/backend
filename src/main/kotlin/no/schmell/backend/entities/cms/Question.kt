@@ -2,6 +2,7 @@ package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.QuestionDto
 import no.schmell.backend.dtos.cms.QuestionListDto
+import no.schmell.backend.lib.files.GenerateObjectSignedUrl
 import java.net.URL
 import javax.persistence.*
 
@@ -39,24 +40,24 @@ class Question(
     val relatedGame: Game
 
 ) {
-    fun toQuestionDto(): QuestionDto {
+    fun toQuestionDto(generateObjectSignedUrl: GenerateObjectSignedUrl): QuestionDto {
         return this.let {
             QuestionDto(
                 it.id,
-                it.relatedWeek.toWeekDto(),
+                it.relatedWeek.toWeekDto(generateObjectSignedUrl),
                 it.type,
                 it.questionDescription,
                 it.phase,
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                URL(""),
-                it.relatedGame.toGameDto()
+                generateObjectSignedUrl.generateSignedUrl(it.questionPicture),
+                it.relatedGame.toGameDto(generateObjectSignedUrl)
             )
         }
     }
 
-    fun toQuestionListDto(): QuestionListDto {
+    fun toQuestionListDto(generateObjectSignedUrl: GenerateObjectSignedUrl): QuestionListDto {
         return this.let {
             QuestionListDto(
                 it.id,
@@ -67,7 +68,7 @@ class Question(
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                URL(""),
+                generateObjectSignedUrl.generateSignedUrl(it.questionPicture),
                 it.relatedGame.id
             )
         }

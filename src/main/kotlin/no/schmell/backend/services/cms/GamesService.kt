@@ -4,6 +4,7 @@ import mu.KLogging
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.dtos.cms.*
 import no.schmell.backend.entities.cms.Game
+import no.schmell.backend.lib.files.GenerateObjectSignedUrl
 import no.schmell.backend.services.files.FileService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -14,7 +15,8 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class GamesService(
     val gameRepository: GameRepository,
-    val fileService: FileService) {
+    val filesService: FileService,
+    val generateObjectSignedUrl: GenerateObjectSignedUrl) {
 
     companion object: KLogging()
 
@@ -24,19 +26,19 @@ class GamesService(
         if (filters.name != null) games = games.filter { it.name.contains(filters.name) }
         if (filters.status != null) games = games.filter { it.status == filters.status }
 
-        return games.map { game -> game.toGameDto() }
+        return games.map { game -> game.toGameDto(generateObjectSignedUrl) }
     }
 
     fun getById(id: Int): GameDto {
         val game = gameRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return game.toGameDto()
+        return game.toGameDto(generateObjectSignedUrl)
     }
 
-    fun create(dto: GameDto): GameDto = gameRepository.save(dto.toGameEntity()).toGameDto()
+    fun create(dto: GameDto): GameDto = gameRepository.save(dto.toGameEntity()).toGameDto(generateObjectSignedUrl)
 
     fun update(id: Int, game: GameDto): GameDto {
         return if (gameRepository.existsById(id)) {
-            gameRepository.save(game.toGameEntity()).toGameDto()
+            gameRepository.save(game.toGameEntity()).toGameDto(generateObjectSignedUrl)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
@@ -50,7 +52,7 @@ class GamesService(
         val game = gameRepository.findByIdOrNull(id)
 
         return if (game != null) {
-            val uploadedFile = fileService.uploadFile(file, "game_pictures")
+            val uploadedFile = filesService.uploadFile(file, "game_pictures")
 
             gameRepository.save(Game(
                 game.id,
@@ -58,9 +60,9 @@ class GamesService(
                 game.description,
                 game.lastUpdated,
                 game.status,
-                uploadedFile.fileName,
+                uploadedFile?.fileName,
                 game.releaseDate
-            )).toGameDto()
+            )).toGameDto(generateObjectSignedUrl)
 
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }

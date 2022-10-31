@@ -8,6 +8,7 @@ import no.schmell.backend.dtos.cms.QuestionDto
 import no.schmell.backend.dtos.cms.QuestionFilter
 import no.schmell.backend.dtos.cms.QuestionListDto
 import no.schmell.backend.entities.cms.Question
+import no.schmell.backend.lib.files.GenerateObjectSignedUrl
 import no.schmell.backend.services.files.FileService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -20,8 +21,9 @@ import java.net.URL
 class QuestionsService(
     private val questionRepository: QuestionRepository,
     val weeksService: WeeksService,
-    val fileService: FileService,
-    val gamesService: GamesService
+    val gamesService: GamesService,
+    val filesService: FileService,
+    val generateObjectSignedUrl: GenerateObjectSignedUrl
 ) {
 
     companion object : KLogging()
@@ -39,7 +41,7 @@ class QuestionsService(
             questions = questions.sortedBy { it.phase }
         }
 
-        return questions.map { question -> question.toQuestionListDto() }
+        return questions.map { question -> question.toQuestionListDto(generateObjectSignedUrl) }
     }
 
     fun createSeveral(dto: List<CreateQuestionParams>): List<QuestionDto> {
@@ -49,23 +51,23 @@ class QuestionsService(
             question.fromCreateToDto(week, game).toQuestionEntity()
         })
 
-        return savedQuestions.map { question -> question.toQuestionDto() }
+        return savedQuestions.map { question -> question.toQuestionDto(generateObjectSignedUrl) }
     }
 
     fun getById(id: Int): QuestionDto {
         val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return question.toQuestionDto()
+        return question.toQuestionDto(generateObjectSignedUrl)
     }
 
     fun create(dto: CreateQuestionParams): QuestionDto {
         val relatedWeek = weeksService.getById(dto.relatedWeek)
         val relatedGame = gamesService.getById(dto.relatedGame)
-        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto()
+        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto(generateObjectSignedUrl)
     }
 
     fun update(id: Int, question: QuestionDto): QuestionDto {
         return if (questionRepository.existsById(id)) {
-            questionRepository.save(question.toQuestionEntity()).toQuestionDto()
+            questionRepository.save(question.toQuestionEntity()).toQuestionDto(generateObjectSignedUrl)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
@@ -86,7 +88,7 @@ class QuestionsService(
                         question.function,
                         question.punishment,
                         question.questionPicture,
-                        URL(""),
+                        generateObjectSignedUrl.generateSignedUrl(question.questionPicture),
                         question.relatedGame
                     )
                 )
@@ -125,7 +127,7 @@ class QuestionsService(
         val question = questionRepository.findByIdOrNull(id)
 
         return if (question != null) {
-            val uploadedFile = fileService.uploadFile(file, "question_pictures")
+            val uploadedFile = filesService.uploadFile(file, "question_pictures")
 
             questionRepository.save(Question(
                 question.id,
@@ -135,9 +137,9 @@ class QuestionsService(
                 question.phase,
                 question.function,
                 question.punishment,
-                uploadedFile.fileName,
+                uploadedFile?.fileName,
                 question.relatedGame,
-            )).toQuestionDto()
+            )).toQuestionDto(generateObjectSignedUrl)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 }
