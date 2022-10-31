@@ -1,7 +1,6 @@
 package no.schmell.backend.dtos.auth
 
 import no.schmell.backend.entities.auth.User
-import java.net.URL
 
 data class UserDto(
     var id : Int?,
@@ -13,12 +12,12 @@ data class UserDto(
     val alertsForTasks : Boolean,
     val alertsForDeadlines : Boolean,
     val profilePicture : String?,
-    val profilePictureUrl: URL?,
+    val profilePictureUrl : String?
 ) {
     fun toUserEntity(): User {
         return this.let {
             User(
-                it.id ?: null,
+                it.id,
                 it.username,
                 it.email,
                 it.phoneNumber,

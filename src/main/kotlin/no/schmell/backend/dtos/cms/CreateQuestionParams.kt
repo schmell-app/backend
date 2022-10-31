@@ -13,7 +13,7 @@ data class CreateQuestionParams(
     fun fromCreateToDto(weekDto: WeekDto, gameDto: GameDto): QuestionDto {
         return this.let {
             QuestionDto(
-                it.id ?: null,
+                it.id,
                 weekDto,
                 it.type,
                 it.questionDescription,
@@ -21,8 +21,8 @@ data class CreateQuestionParams(
                 it.function,
                 it.punishment,
                 null,
-                null,
-                gameDto
+                gameDto,
+                null
             )
         }
     }

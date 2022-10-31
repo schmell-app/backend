@@ -3,7 +3,7 @@ package no.schmell.backend.entities.common
 import no.schmell.backend.dtos.common.IdeaDto
 import no.schmell.backend.entities.auth.User
 import no.schmell.backend.lib.enums.IdeaCategory
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
+import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
 
 @Entity
@@ -24,13 +24,13 @@ class Idea(
     @JoinColumn(name = "application_user_id")
     val createdBy: User,
 ) {
-    fun toIdeaDto(generateObjectSignedUrl: GenerateObjectSignedUrl): IdeaDto {
+    fun toIdeaDto(filesService: FilesService): IdeaDto {
         return this.let {
             IdeaDto(
                 it.id,
                 it.ideaText,
                 it.category,
-                it.createdBy.toUserDto(generateObjectSignedUrl)
+                it.createdBy.toUserDto(filesService)
             )
         }
     }

@@ -1,6 +1,7 @@
 package no.schmell.backend.dtos.cms
 
 import no.schmell.backend.entities.cms.Question
+import no.schmell.backend.services.files.FilesService
 import java.net.URL
 
 data class QuestionDto(
@@ -12,13 +13,13 @@ data class QuestionDto(
     val function: String?,
     val punishment: Int,
     val questionPicture: String?,
-    val signedUrl: URL?,
     val relatedGame: GameDto,
+    val questionPictureUrl: String?
 ) {
     fun toQuestionEntity(): Question {
         return this.let {
             Question(
-                it.id ?: null,
+                it.id,
                 relatedWeek.toWeekEntity(),
                 it.type,
                 it.questionDescription,

@@ -2,7 +2,10 @@ package no.schmell.backend.controllers.auth
 
 import no.schmell.backend.dtos.auth.UserDto
 import no.schmell.backend.services.auth.AuthService
+import org.springframework.core.io.Resource
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -31,4 +34,5 @@ class AuthController(val authService: AuthService) {
     @PostMapping("/{id}/files/")
     @ResponseStatus(HttpStatus.OK)
     fun addProfilePicture(@PathVariable("id") id: String, @RequestBody file: MultipartFile): UserDto = authService.addProfilePicture(id.toInt(), file)
+
 }

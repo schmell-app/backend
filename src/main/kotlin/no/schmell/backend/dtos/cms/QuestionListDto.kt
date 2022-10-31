@@ -1,7 +1,5 @@
 package no.schmell.backend.dtos.cms
 
-import java.net.URL
-
 data class QuestionListDto(
     val id: Int?,
     var relatedWeek: Int?,
@@ -11,6 +9,6 @@ data class QuestionListDto(
     val function: String?,
     val punishment: Int,
     val questionPicture: String?,
-    val signedUrl: URL?,
-    val relatedGame: Int?
+    val relatedGame: Int?,
+    val questionPictureUrl: String?
 )

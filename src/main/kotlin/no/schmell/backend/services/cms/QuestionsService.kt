@@ -8,22 +8,19 @@ import no.schmell.backend.dtos.cms.QuestionDto
 import no.schmell.backend.dtos.cms.QuestionFilter
 import no.schmell.backend.dtos.cms.QuestionListDto
 import no.schmell.backend.entities.cms.Question
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
-import no.schmell.backend.services.files.FileService
+import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
-import java.net.URL
 
 @Service
 class QuestionsService(
     private val questionRepository: QuestionRepository,
     val weeksService: WeeksService,
     val gamesService: GamesService,
-    val filesService: FileService,
-    val generateObjectSignedUrl: GenerateObjectSignedUrl
+    val filesService: FilesService,
 ) {
 
     companion object : KLogging()
@@ -41,7 +38,7 @@ class QuestionsService(
             questions = questions.sortedBy { it.phase }
         }
 
-        return questions.map { question -> question.toQuestionListDto(generateObjectSignedUrl) }
+        return questions.map { question -> question.toQuestionListDto(filesService) }
     }
 
     fun createSeveral(dto: List<CreateQuestionParams>): List<QuestionDto> {
@@ -51,23 +48,23 @@ class QuestionsService(
             question.fromCreateToDto(week, game).toQuestionEntity()
         })
 
-        return savedQuestions.map { question -> question.toQuestionDto(generateObjectSignedUrl) }
+        return savedQuestions.map { question -> question.toQuestionDto(filesService) }
     }
 
     fun getById(id: Int): QuestionDto {
         val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return question.toQuestionDto(generateObjectSignedUrl)
+        return question.toQuestionDto(filesService)
     }
 
     fun create(dto: CreateQuestionParams): QuestionDto {
         val relatedWeek = weeksService.getById(dto.relatedWeek)
         val relatedGame = gamesService.getById(dto.relatedGame)
-        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto(generateObjectSignedUrl)
+        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto(filesService)
     }
 
     fun update(id: Int, question: QuestionDto): QuestionDto {
         return if (questionRepository.existsById(id)) {
-            questionRepository.save(question.toQuestionEntity()).toQuestionDto(generateObjectSignedUrl)
+            questionRepository.save(question.toQuestionEntity()).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
@@ -88,8 +85,8 @@ class QuestionsService(
                         question.function,
                         question.punishment,
                         question.questionPicture,
-                        generateObjectSignedUrl.generateSignedUrl(question.questionPicture),
-                        question.relatedGame
+                        question.relatedGame,
+                        question.questionPicture?.let { file -> filesService.generatePresignedUrl("schmell-files", file) }
                     )
                 )
             }
@@ -127,7 +124,7 @@ class QuestionsService(
         val question = questionRepository.findByIdOrNull(id)
 
         return if (question != null) {
-            val uploadedFile = filesService.uploadFile(file, "question_pictures")
+            val uploadedFile = filesService.saveFile(file, "schmell-files", "questionPictures")
 
             questionRepository.save(Question(
                 question.id,
@@ -139,7 +136,7 @@ class QuestionsService(
                 question.punishment,
                 uploadedFile?.fileName,
                 question.relatedGame,
-            )).toQuestionDto(generateObjectSignedUrl)
+            )).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 }

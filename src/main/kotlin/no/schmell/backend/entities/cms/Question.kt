@@ -2,8 +2,7 @@ package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.QuestionDto
 import no.schmell.backend.dtos.cms.QuestionListDto
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
-import java.net.URL
+import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
 
 @Entity
@@ -40,24 +39,24 @@ class Question(
     val relatedGame: Game
 
 ) {
-    fun toQuestionDto(generateObjectSignedUrl: GenerateObjectSignedUrl): QuestionDto {
+    fun toQuestionDto(filesService: FilesService): QuestionDto {
         return this.let {
             QuestionDto(
                 it.id,
-                it.relatedWeek.toWeekDto(generateObjectSignedUrl),
+                it.relatedWeek.toWeekDto(filesService),
                 it.type,
                 it.questionDescription,
                 it.phase,
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                generateObjectSignedUrl.generateSignedUrl(it.questionPicture),
-                it.relatedGame.toGameDto(generateObjectSignedUrl)
+                it.relatedGame.toGameDto(filesService),
+                it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) }
             )
         }
     }
 
-    fun toQuestionListDto(generateObjectSignedUrl: GenerateObjectSignedUrl): QuestionListDto {
+    fun toQuestionListDto(filesService: FilesService): QuestionListDto {
         return this.let {
             QuestionListDto(
                 it.id,
@@ -68,8 +67,8 @@ class Question(
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                generateObjectSignedUrl.generateSignedUrl(it.questionPicture),
-                it.relatedGame.id
+                it.relatedGame.id,
+                it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) }
             )
         }
     }
