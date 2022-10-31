@@ -2,7 +2,7 @@ package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.GameDto
 import no.schmell.backend.lib.enums.GameStatus
-import no.schmell.backend.lib.getSignedUrl
+import no.schmell.backend.lib.files.GenerateObjectSignedUrl
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.*
@@ -33,7 +33,7 @@ class Game(
     @Column(name="release_date", nullable = true)
     val releaseDate: LocalDate?
 ){
-    fun toGameDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): GameDto {
+    fun toGameDto(generateObjectSignedUrl: GenerateObjectSignedUrl): GameDto {
 
         return this.let {
             GameDto(
@@ -44,7 +44,7 @@ class Game(
                 it.status,
                 it.logo,
                 it.releaseDate,
-                getSignedUrl(gcpProjectId, gcpBucketId, gcpConfigFile, this.logo),
+                generateObjectSignedUrl.generateSignedUrl(it.logo),
             )
         }
     }

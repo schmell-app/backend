@@ -2,7 +2,8 @@ package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.QuestionDto
 import no.schmell.backend.dtos.cms.QuestionListDto
-import no.schmell.backend.lib.getSignedUrl
+import no.schmell.backend.lib.files.GenerateObjectSignedUrl
+import java.net.URL
 import javax.persistence.*
 
 @Entity
@@ -39,24 +40,24 @@ class Question(
     val relatedGame: Game
 
 ) {
-    fun toQuestionDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): QuestionDto {
+    fun toQuestionDto(generateObjectSignedUrl: GenerateObjectSignedUrl): QuestionDto {
         return this.let {
             QuestionDto(
                 it.id,
-                it.relatedWeek.toWeekDto(gcpProjectId, gcpBucketId, gcpConfigFile),
+                it.relatedWeek.toWeekDto(generateObjectSignedUrl),
                 it.type,
                 it.questionDescription,
                 it.phase,
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                getSignedUrl(gcpProjectId, gcpBucketId, gcpConfigFile, it.questionPicture),
-                it.relatedGame.toGameDto(gcpProjectId, gcpBucketId, gcpConfigFile)
+                generateObjectSignedUrl.generateSignedUrl(it.questionPicture),
+                it.relatedGame.toGameDto(generateObjectSignedUrl)
             )
         }
     }
 
-    fun toQuestionListDto(gcpProjectId: String, gcpBucketId: String, gcpConfigFile: String): QuestionListDto {
+    fun toQuestionListDto(generateObjectSignedUrl: GenerateObjectSignedUrl): QuestionListDto {
         return this.let {
             QuestionListDto(
                 it.id,
@@ -67,7 +68,7 @@ class Question(
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                getSignedUrl(gcpProjectId, gcpBucketId, gcpConfigFile, it.questionPicture),
+                generateObjectSignedUrl.generateSignedUrl(it.questionPicture),
                 it.relatedGame.id
             )
         }
