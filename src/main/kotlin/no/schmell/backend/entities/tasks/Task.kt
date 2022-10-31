@@ -6,7 +6,7 @@ import no.schmell.backend.entities.cms.Game
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
+import no.schmell.backend.services.files.FilesService
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -52,7 +52,7 @@ class Task(
     @Column(name = "last_updated", nullable = false)
     val lastUpdated : LocalDateTime,
 ) {
-    fun toTaskDto(generateObjectSignedUrl: GenerateObjectSignedUrl): TaskDto {
+    fun toTaskDto(filesService: FilesService): TaskDto {
         return this.let {
             TaskDto(
                 it.id,
@@ -63,8 +63,8 @@ class Task(
                 it.deadline,
                 it.category,
                 it.priority,
-                it.responsibleUser.toUserDto(generateObjectSignedUrl),
-                it.relatedGame?.toGameDto(generateObjectSignedUrl),
+                it.responsibleUser.toUserDto(filesService),
+                it.relatedGame?.toGameDto(filesService),
                 it.lastUpdated
             )
         }

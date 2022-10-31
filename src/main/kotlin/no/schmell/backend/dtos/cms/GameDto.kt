@@ -14,7 +14,7 @@ data class GameDto(
     val status : GameStatus?,
     val logo : String?,
     val releaseDate: LocalDate?,
-    val logoUrl: URL?,
+    val logoUrl: String?
 ) {
 
     fun toGameEntity(): Game {

@@ -1,7 +1,7 @@
 package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.WeekDto
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
+import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
 
 @Entity
@@ -18,11 +18,11 @@ class Week(
     @Column(name = "week_number", nullable = false)
     val weekNumber: Int,
 ) {
-    fun toWeekDto(generateObjectSignedUrl: GenerateObjectSignedUrl): WeekDto {
+    fun toWeekDto(filesService: FilesService): WeekDto {
         return this.let {
             WeekDto(
                 it.id,
-                it.relatedGame.toGameDto(generateObjectSignedUrl),
+                it.relatedGame.toGameDto(filesService),
                 it.weekNumber
             )
         }

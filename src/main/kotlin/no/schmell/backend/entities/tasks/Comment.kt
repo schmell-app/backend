@@ -3,7 +3,7 @@ package no.schmell.backend.entities.tasks
 import no.schmell.backend.dtos.tasks.CommentDto
 import no.schmell.backend.dtos.tasks.CommentListDto
 import no.schmell.backend.entities.auth.User
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
+import no.schmell.backend.services.files.FilesService
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -28,25 +28,25 @@ class Comment(
     @JoinColumn(name="task_id")
     val relatedTask : Task,
 ) {
-    fun toCommentDto(generateObjectSignedUrl: GenerateObjectSignedUrl): CommentDto {
+    fun toCommentDto(filesService: FilesService): CommentDto {
         return this.let {
             CommentDto(
                 it.id,
                 it.createdDate,
                 it.comment,
-                it.writtenBy.toUserDto(generateObjectSignedUrl),
-                it.relatedTask.toTaskDto(generateObjectSignedUrl)
+                it.writtenBy.toUserDto(filesService),
+                it.relatedTask.toTaskDto(filesService)
             )
         }
     }
 
-    fun toCommentListDto(generateObjectSignedUrl: GenerateObjectSignedUrl): CommentListDto {
+    fun toCommentListDto(filesService: FilesService): CommentListDto {
         return this.let {
             CommentListDto(
                 it.id,
                 it.createdDate,
                 it.comment,
-                it.writtenBy.toUserDto(generateObjectSignedUrl),
+                it.writtenBy.toUserDto(filesService),
                 it.relatedTask.id!!
             )
         }

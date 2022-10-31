@@ -3,9 +3,9 @@ package no.schmell.backend.services.tasks
 import no.schmell.backend.repositories.tasks.TaskRepository
 import no.schmell.backend.utils.sortTaskList
 import no.schmell.backend.dtos.tasks.*
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
 import no.schmell.backend.services.auth.AuthService
 import no.schmell.backend.services.cms.GamesService
+import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -16,7 +16,7 @@ class TasksService(
     private val tasksRepository: TaskRepository,
     val authService: AuthService,
     val gamesService: GamesService,
-    val generateObjectSignedUrl: GenerateObjectSignedUrl) {
+    val filesService: FilesService) {
 
     fun getAll(filters: TaskFilters): List<TaskDto> {
         var tasks = tasksRepository.findAll()
@@ -28,12 +28,12 @@ class TasksService(
         if (filters.responsibleUser != null) tasks = tasks.filter { it.responsibleUser.id == filters.responsibleUser }
         if (filters.sort != null) tasks = sortTaskList(tasks, filters.sort)
 
-        return tasks.map { task -> task.toTaskDto(generateObjectSignedUrl) }
+        return tasks.map { task -> task.toTaskDto(filesService) }
     }
 
     fun getById(id: Int): TaskDto {
         val task = tasksRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return task.toTaskDto(generateObjectSignedUrl)
+        return task.toTaskDto(filesService)
     }
 
     fun create(createDto: CreateTaskParams): TaskDto {
@@ -42,12 +42,12 @@ class TasksService(
 
         return tasksRepository.save(
             createDto.fromCreateToDto(responsibleUser, relatedGame).toTaskEntity()
-        ).toTaskDto(generateObjectSignedUrl)
+        ).toTaskDto(filesService)
     }
 
     fun update(id: Int, task: TaskDto): TaskDto {
         return if (tasksRepository.existsById(id)) {
-            tasksRepository.save(task.toTaskEntity()).toTaskDto(generateObjectSignedUrl)
+            tasksRepository.save(task.toTaskEntity()).toTaskDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 

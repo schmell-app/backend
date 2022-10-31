@@ -2,10 +2,8 @@ package no.schmell.backend.entities.auth
 
 import mu.KLogging
 import no.schmell.backend.dtos.auth.UserDto
-import no.schmell.backend.lib.files.GenerateObjectSignedUrl
-import java.net.URL
+import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
-
 
 @Entity
 @Table(name = "application_user")
@@ -42,7 +40,7 @@ class User(
 
     companion object: KLogging()
 
-    fun toUserDto(generateObjectSignedUrl: GenerateObjectSignedUrl): UserDto {
+    fun toUserDto(filesService: FilesService): UserDto {
 
         return this.let{
             UserDto(
@@ -55,7 +53,7 @@ class User(
                 it.alertsForTasks,
                 it.alertsForDeadlines,
                 it.profilePicture,
-                generateObjectSignedUrl.generateSignedUrl(it.profilePicture)
+                it.profilePicture?.let { pic -> filesService.generatePresignedUrl("schmell-files", pic) }
             )
         }
     }
