@@ -30,7 +30,7 @@ class Idea(
                 it.id,
                 it.ideaText,
                 it.category,
-                it.createdBy.toUserDto(filesService)
+                it.createdBy.toSimpleUserDto(filesService)
             )
         }
     }

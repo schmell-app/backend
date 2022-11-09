@@ -3,18 +3,23 @@ package no.schmell.backend.services.tasks
 import no.schmell.backend.repositories.tasks.TaskRepository
 import no.schmell.backend.utils.sortTaskList
 import no.schmell.backend.dtos.tasks.*
-import no.schmell.backend.services.auth.AuthService
+import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.lib.enums.TaskStatus
+import no.schmell.backend.repositories.auth.UserRepository
+import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.services.cms.GamesService
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Service
 class TasksService(
     private val tasksRepository: TaskRepository,
-    val authService: AuthService,
+    val userRepository: UserRepository,
+    val gameRepository: GameRepository,
     val gamesService: GamesService,
     val filesService: FilesService) {
 
@@ -36,19 +41,41 @@ class TasksService(
         return task.toTaskDto(filesService)
     }
 
-    fun create(createDto: CreateTaskParams): TaskDto {
-        val responsibleUser = authService.getById(createDto.responsibleUser)
-        val relatedGame = createDto.relatedGame?.let { gamesService.getById(it) }
-
-        return tasksRepository.save(
-            createDto.fromCreateToDto(responsibleUser, relatedGame).toTaskEntity()
-        ).toTaskDto(filesService)
+    fun create(dto: CreateTaskDto): TaskDto {
+        val createdTask = Task(
+            null,
+            LocalDateTime.now(),
+            dto.title,
+            dto.description,
+            dto.status ?: TaskStatus.PENDING,
+            dto.deadline,
+            dto.category,
+            dto.priority,
+            userRepository.findByIdOrNull(dto.responsibleUser) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND),
+            gameRepository.findByIdOrNull(dto.relatedGame ?: 0),
+            LocalDateTime.now()
+        )
+        return tasksRepository.save(createdTask).toTaskDto(filesService)
     }
 
-    fun update(id: Int, task: TaskDto): TaskDto {
-        return if (tasksRepository.existsById(id)) {
-            tasksRepository.save(task.toTaskEntity()).toTaskDto(filesService)
-        } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    fun update(id: Int, dto: UpdateTaskDto): TaskDto {
+        val taskToUpdate = tasksRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        val updatedTask = Task(
+            taskToUpdate.id,
+            taskToUpdate.createdDateTime,
+            taskToUpdate.title,
+            taskToUpdate.description,
+            dto.status ?: taskToUpdate.status,
+            dto.deadline ?: taskToUpdate.deadline,
+            taskToUpdate.category,
+            taskToUpdate.priority,
+            taskToUpdate.responsibleUser,
+            gameRepository.findByIdOrNull(dto.relatedGame ?: 0) ?: taskToUpdate.relatedGame,
+            LocalDateTime.now()
+        )
+
+        return tasksRepository.save(updatedTask).toTaskDto(filesService)
     }
 
     fun delete(id: Int) {

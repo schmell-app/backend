@@ -1,7 +1,9 @@
 package no.schmell.backend.controllers.cms
 
-import no.schmell.backend.dtos.cms.GameDto
-import no.schmell.backend.dtos.cms.GameFilters
+import no.schmell.backend.dtos.cms.game.CreateGameDto
+import no.schmell.backend.dtos.cms.game.GameDto
+import no.schmell.backend.dtos.cms.game.GameFilters
+import no.schmell.backend.dtos.cms.game.UpdateGameDto
 import no.schmell.backend.lib.enums.GameStatus
 import no.schmell.backend.services.cms.GamesService
 import org.springframework.http.HttpStatus
@@ -25,11 +27,11 @@ class GamesController(val gamesService: GamesService) {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createGame(@RequestBody dto: GameDto): GameDto = gamesService.create(dto)
+    fun createGame(@RequestBody dto: CreateGameDto): GameDto = gamesService.create(dto)
 
-    @PutMapping("/{id}/")
+    @PatchMapping("/{id}/")
     @ResponseStatus(HttpStatus.OK)
-    fun updateGame(@PathVariable("id") id: String, @RequestBody dto: GameDto): GameDto = gamesService.update(id.toInt(), dto)
+    fun updateGame(@PathVariable("id") id: String, @RequestBody dto: UpdateGameDto): GameDto = gamesService.update(id.toInt(), dto)
 
     @DeleteMapping("/{id}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)

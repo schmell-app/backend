@@ -1,4 +1,4 @@
-package no.schmell.backend.dtos.cms
+package no.schmell.backend.dtos.cms.game
 
 import no.schmell.backend.lib.enums.GameStatus
 

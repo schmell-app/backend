@@ -1,9 +1,9 @@
 package no.schmell.backend.entities.cms
 
-import no.schmell.backend.dtos.cms.GameDto
+import no.schmell.backend.dtos.cms.game.GameDto
+import no.schmell.backend.dtos.cms.game.SimpleGameDto
 import no.schmell.backend.lib.enums.GameStatus
 import no.schmell.backend.services.files.FilesService
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -29,12 +29,8 @@ class Game(
 
     @Column(name="logo", nullable = true)
     val logo: String?,
-
-    @Column(name="release_date", nullable = true)
-    val releaseDate: LocalDate?
 ){
     fun toGameDto(filesService: FilesService): GameDto {
-
         return this.let {
             GameDto(
                 it.id,
@@ -43,8 +39,16 @@ class Game(
                 it.lastUpdated,
                 it.status,
                 it.logo,
-                it.releaseDate,
                 it.logo?.let { logo -> filesService.generatePresignedUrl("schmell-files", logo) }
+            )
+        }
+    }
+
+    fun toSimpleGameDto(): SimpleGameDto {
+        return this.let {
+            SimpleGameDto(
+                it.id,
+                it.name
             )
         }
     }

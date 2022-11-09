@@ -2,8 +2,7 @@ package no.schmell.backend.controllers.tasks
 
 import no.schmell.backend.dtos.tasks.CommentDto
 import no.schmell.backend.dtos.tasks.CommentFilters
-import no.schmell.backend.dtos.tasks.CommentListDto
-import no.schmell.backend.dtos.tasks.CreateCommentParams
+import no.schmell.backend.dtos.tasks.CreateCommentDto
 import no.schmell.backend.services.tasks.CommentsService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -17,17 +16,12 @@ class CommentsController(val commentsService: CommentsService) {
 
     @GetMapping("")
     fun getComments(
-        @RequestParam(value = "relatedTask", required = false) relatedTask: Int?): List<CommentListDto> =
+        @RequestParam(value = "relatedTask", required = false) relatedTask: Int?): List<CommentDto> =
         commentsService.getAll(CommentFilters(relatedTask))
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createComment(@RequestBody(required = true) dto: CreateCommentParams): CommentDto = commentsService.create(dto)
-
-    @PutMapping("/{id}/")
-    @ResponseStatus(HttpStatus.OK)
-    fun updateComment(@PathVariable("id") id: String, @RequestBody(required = true) dto: CommentDto): CommentDto =
-        commentsService.update(id.toInt(), dto)
+    fun createComment(@RequestBody(required = true) dto: CreateCommentDto): CommentDto = commentsService.create(dto)
 
     @DeleteMapping("/{id}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)

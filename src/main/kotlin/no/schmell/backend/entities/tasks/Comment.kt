@@ -1,7 +1,6 @@
 package no.schmell.backend.entities.tasks
 
 import no.schmell.backend.dtos.tasks.CommentDto
-import no.schmell.backend.dtos.tasks.CommentListDto
 import no.schmell.backend.entities.auth.User
 import no.schmell.backend.services.files.FilesService
 import java.time.LocalDateTime
@@ -34,19 +33,7 @@ class Comment(
                 it.id,
                 it.createdDate,
                 it.comment,
-                it.writtenBy.toUserDto(filesService),
-                it.relatedTask.toTaskDto(filesService)
-            )
-        }
-    }
-
-    fun toCommentListDto(filesService: FilesService): CommentListDto {
-        return this.let {
-            CommentListDto(
-                it.id,
-                it.createdDate,
-                it.comment,
-                it.writtenBy.toUserDto(filesService),
+                it.writtenBy.toSimpleUserDto(filesService),
                 it.relatedTask.id!!
             )
         }

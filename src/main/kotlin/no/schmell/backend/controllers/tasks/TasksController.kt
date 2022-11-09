@@ -1,8 +1,9 @@
 package no.schmell.backend.controllers.tasks
 
-import no.schmell.backend.dtos.tasks.CreateTaskParams
+import no.schmell.backend.dtos.tasks.CreateTaskDto
 import no.schmell.backend.dtos.tasks.TaskDto
 import no.schmell.backend.dtos.tasks.TaskFilters
+import no.schmell.backend.dtos.tasks.UpdateTaskDto
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
@@ -10,6 +11,7 @@ import no.schmell.backend.services.tasks.TasksService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -47,11 +49,11 @@ class TasksController(val tasksService: TasksService) {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    fun createTask(@RequestBody(required = true) dto: CreateTaskParams): TaskDto = tasksService.create(dto)
+    fun createTask(@RequestBody(required = true) dto: CreateTaskDto): TaskDto = tasksService.create(dto)
 
-    @PutMapping("/{id}/")
+    @PatchMapping("/{id}/")
     @ResponseStatus(HttpStatus.OK)
-    fun updateTask(@PathVariable("id") id: String, @RequestBody(required = true) dto: TaskDto): TaskDto = tasksService.update(id.toInt(), dto)
+    fun updateTask(@PathVariable("id") id: String, @RequestBody(required = true) dto: UpdateTaskDto): TaskDto = tasksService.update(id.toInt(), dto)
 
     @DeleteMapping("/{id}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)

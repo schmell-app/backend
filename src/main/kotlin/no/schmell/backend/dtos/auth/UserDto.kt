@@ -1,10 +1,7 @@
 package no.schmell.backend.dtos.auth
 
-import no.schmell.backend.entities.auth.User
-
 data class UserDto(
     var id : Int?,
-    val username : String,
     val email : String,
     val phoneNumber : Long,
     val firstName : String,
@@ -12,22 +9,20 @@ data class UserDto(
     val alertsForTasks : Boolean,
     val alertsForDeadlines : Boolean,
     val profilePicture : String?,
+    val profilePictureUrl : String?,
+    val auth0Id : String
+)
+data class SimpleUserDto(
+    val id : Int,
+    val email : String,
+    val fullName : String,
     val profilePictureUrl : String?
-) {
-    fun toUserEntity(): User {
-        return this.let {
-            User(
-                it.id,
-                it.username,
-                it.email,
-                it.phoneNumber,
-                it.firstName,
-                it.lastName,
-                it.alertsForTasks,
-                it.alertsForDeadlines,
-                it.profilePicture
-            )
-        }
-    }
-}
-
+)
+data class UpdateUserDto(
+    val email: String?,
+    val phoneNumber: Long?,
+    val firstName: String?,
+    val lastName: String?,
+    val alertsForTasks: Boolean?,
+    val alertsForDeadlines: Boolean?,
+)

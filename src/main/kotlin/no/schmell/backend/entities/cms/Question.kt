@@ -1,7 +1,6 @@
 package no.schmell.backend.entities.cms
 
-import no.schmell.backend.dtos.cms.QuestionDto
-import no.schmell.backend.dtos.cms.QuestionListDto
+import no.schmell.backend.dtos.cms.question.QuestionDto
 import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
 
@@ -12,7 +11,7 @@ class Question(
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id : Int?,
 
-    @ManyToOne(cascade = [CascadeType.REMOVE])
+    @ManyToOne(cascade = [CascadeType.DETACH])
     @JoinColumn(name = "week_id")
     val relatedWeek : Week,
 
@@ -34,7 +33,7 @@ class Question(
     @Column(name="question_picture", nullable = true)
     val questionPicture: String?,
 
-    @ManyToOne(cascade = [CascadeType.REMOVE])
+    @ManyToOne(cascade = [CascadeType.DETACH])
     @JoinColumn(name = "game_id")
     val relatedGame: Game
 
@@ -43,31 +42,14 @@ class Question(
         return this.let {
             QuestionDto(
                 it.id,
-                it.relatedWeek.toWeekDto(filesService),
+                it.relatedWeek.id!!,
                 it.type,
                 it.questionDescription,
                 it.phase,
                 it.function,
                 it.punishment,
                 it.questionPicture,
-                it.relatedGame.toGameDto(filesService),
-                it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) }
-            )
-        }
-    }
-
-    fun toQuestionListDto(filesService: FilesService): QuestionListDto {
-        return this.let {
-            QuestionListDto(
-                it.id,
-                it.relatedWeek.id,
-                it.type,
-                it.questionDescription,
-                it.phase,
-                it.function,
-                it.punishment,
-                it.questionPicture,
-                it.relatedGame.id,
+                it.relatedGame.id!!,
                 it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) }
             )
         }

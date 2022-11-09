@@ -4,8 +4,8 @@ import no.schmell.backend.entities.tasks.Task
 
 /**
  * Function to sort tasks based on parameter.
- * - PRIORITY_HTL = Prioritet (høy til lav)
- * - PRIORITY_LTH = Prioritet (lav til høy)
+ * - PRIORITY_DESC = Prioritet (høy til lav)
+ * - PRIORITY_ASC = Prioritet (lav til høy)
  * - DEADLINE_DESC = Frist (eldst til nyest)
  * - DEADLINE_ASC = Frist (nyest til eldst)
  * - CATEGORY_ASC = Kategori (A til Å)
@@ -15,8 +15,8 @@ import no.schmell.backend.entities.tasks.Task
  */
 fun sortTaskList(listToSort: Iterable<Task>, sortValue: String): Iterable<Task> {
     when (sortValue) {
-        "PRIORITY_HTL" -> return listToSort.sortedBy { it.priority }
-        "PRIORITY_LTH" -> return listToSort.sortedByDescending { it.priority }
+        "PRIORITY_DESC" -> return listToSort.sortedBy { it.priority }
+        "PRIORITY_ASC" -> return listToSort.sortedByDescending { it.priority }
         "DEADLINE_DESC" -> return listToSort.sortedByDescending { it.deadline }
         "DEADLINE_ASC" -> return listToSort.sortedBy { it.deadline }
         "CATEGORY_ASC" -> return listToSort.sortedBy { it.category }

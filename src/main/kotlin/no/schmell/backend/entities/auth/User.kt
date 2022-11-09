@@ -1,6 +1,7 @@
 package no.schmell.backend.entities.auth
 
 import mu.KLogging
+import no.schmell.backend.dtos.auth.SimpleUserDto
 import no.schmell.backend.dtos.auth.UserDto
 import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
@@ -11,9 +12,6 @@ class User(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id : Int?,
-
-    @Column(name = "username", nullable = false)
-    val username : String,
 
     @Column(name = "email", nullable = false)
     val email : String,
@@ -36,6 +34,8 @@ class User(
     @Column(name = "profile_picture", nullable = true)
     val profilePicture : String?,
 
+    @Column(name = "auth0_id", nullable = false)
+    val auth0Id : String
 ) {
 
     companion object: KLogging()
@@ -45,7 +45,6 @@ class User(
         return this.let{
             UserDto(
                 it.id,
-                it.username,
                 it.email,
                 it.phoneNumber,
                 it.firstName,
@@ -53,6 +52,18 @@ class User(
                 it.alertsForTasks,
                 it.alertsForDeadlines,
                 it.profilePicture,
+                it.profilePicture?.let { pic -> filesService.generatePresignedUrl("schmell-files", pic) },
+                it.auth0Id
+            )
+        }
+    }
+
+    fun toSimpleUserDto(filesService: FilesService): SimpleUserDto {
+        return this.let{
+            SimpleUserDto(
+                it.id!!,
+                it.email,
+                "${it.firstName} ${it.lastName}",
                 it.profilePicture?.let { pic -> filesService.generatePresignedUrl("schmell-files", pic) }
             )
         }
