@@ -3,7 +3,8 @@ package no.schmell.backend.services.common
 import mu.KLogging
 import no.schmell.backend.repositories.common.IdeaRepository
 import no.schmell.backend.dtos.common.*
-import no.schmell.backend.services.auth.AuthService
+import no.schmell.backend.entities.common.Idea
+import no.schmell.backend.repositories.auth.UserRepository
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -13,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class IdeasService(
     private val ideasRepository: IdeaRepository,
-    val authService: AuthService,
+    val userRepository: UserRepository,
     val filesService: FilesService
     ) {
 
@@ -34,16 +35,15 @@ class IdeasService(
         return idea.toIdeaDto(filesService)
     }
 
-    fun create(createDto: CreateIdeaParams): IdeaDto {
-        val createdBy = authService.getById(createDto.createdBy)
-        logger.info { createdBy }
-        return ideasRepository.save(createDto.fromCreateToDto(createdBy).toIdeaEntity()).toIdeaDto(filesService)
-    }
-
-    fun update(id: Int, idea: IdeaDto): IdeaDto {
-        return if (ideasRepository.existsById(id)) {
-            ideasRepository.save(idea.toIdeaEntity()).toIdeaDto(filesService)
-        } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    fun create(dto: CreateIdeaDto): IdeaDto {
+        val createdBy = userRepository.findByIdOrNull(dto.createdBy) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val createdIdea = Idea(
+            null,
+            dto.ideaText,
+            dto.category,
+            createdBy
+        )
+        return ideasRepository.save(createdIdea).toIdeaDto(filesService)
     }
 
     fun delete(id: Int) {

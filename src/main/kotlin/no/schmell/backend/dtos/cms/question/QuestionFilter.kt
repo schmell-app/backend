@@ -1,4 +1,4 @@
-package no.schmell.backend.dtos.cms
+package no.schmell.backend.dtos.cms.question
 
 data class QuestionFilter(
     val relatedWeek: Int?,

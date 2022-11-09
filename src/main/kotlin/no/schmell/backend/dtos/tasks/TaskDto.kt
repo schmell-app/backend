@@ -1,8 +1,7 @@
 package no.schmell.backend.dtos.tasks
 
-import no.schmell.backend.dtos.auth.UserDto
-import no.schmell.backend.dtos.cms.GameDto
-import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.dtos.auth.SimpleUserDto
+import no.schmell.backend.dtos.cms.game.SimpleGameDto
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
@@ -10,37 +9,30 @@ import java.time.LocalDateTime
 
 data class TaskDto(
     val id : Int?,
-    val createdDateTime : LocalDateTime?,
+    val createdDateTime : LocalDateTime,
     val title : String,
     val description : String,
-    val status : TaskStatus?,
+    val status : TaskStatus,
     val deadline : LocalDateTime,
     val category : TaskCategory,
     val priority : TaskPriority,
-    val responsibleUser : UserDto,
-    val relatedGame : GameDto?,
-    val lastUpdated : LocalDateTime?,
-) {
+    val responsibleUser : SimpleUserDto,
+    val relatedGame : SimpleGameDto?,
+    val lastUpdated : LocalDateTime,
+)
+data class CreateTaskDto(
+    val title: String,
+    val description: String,
+    val status: TaskStatus?,
+    val deadline: LocalDateTime,
+    val category: TaskCategory,
+    val priority: TaskPriority,
+    val responsibleUser: Int,
+    val relatedGame: Int?,
+)
 
-    fun toTaskEntity(): Task {
-        val createdDateTime = LocalDateTime.now()
-        val status = TaskStatus.PENDING
-        val lastUpdated = LocalDateTime.now()
-
-        return this.let {
-            Task(
-                it.id,
-                it.createdDateTime ?: createdDateTime,
-                it.title,
-                it.description,
-                it.status ?: status,
-                it.deadline,
-                it.category,
-                it.priority,
-                it.responsibleUser.toUserEntity(),
-                it.relatedGame?.toGameEntity(),
-                it.lastUpdated ?: lastUpdated
-            )
-        }
-    }
-}
+data class UpdateTaskDto(
+    val status: TaskStatus?,
+    val deadline: LocalDateTime?,
+    val relatedGame: Int?
+)

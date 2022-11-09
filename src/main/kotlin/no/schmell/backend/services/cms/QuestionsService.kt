@@ -1,13 +1,16 @@
 package no.schmell.backend.services.cms
 
 import mu.KLogging
-import no.schmell.backend.dtos.cms.CreateQuestionParams
+import no.schmell.backend.dtos.cms.game.UpdateGameDto
+import no.schmell.backend.dtos.cms.question.CreateQuestionDto
 import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
-import no.schmell.backend.dtos.cms.QuestionDto
-import no.schmell.backend.dtos.cms.QuestionFilter
-import no.schmell.backend.dtos.cms.QuestionListDto
+import no.schmell.backend.dtos.cms.question.QuestionDto
+import no.schmell.backend.dtos.cms.question.QuestionFilter
+import no.schmell.backend.dtos.cms.question.UpdateQuestionDto
 import no.schmell.backend.entities.cms.Question
+import no.schmell.backend.repositories.cms.GameRepository
+import no.schmell.backend.repositories.cms.WeekRepository
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -18,19 +21,21 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class QuestionsService(
     private val questionRepository: QuestionRepository,
-    val weeksService: WeeksService,
-    val gamesService: GamesService,
+    val weekRepository: WeekRepository,
+    val gameRepository: GameRepository,
     val filesService: FilesService,
+    val gamesService: GamesService,
 ) {
 
     companion object : KLogging()
 
-    fun getAll(filter: QuestionFilter): List<QuestionListDto> {
+    fun getAll(filter: QuestionFilter): List<QuestionDto> {
         var questions = questionRepository.findAll()
 
         if (filter.relatedWeek != null) questions = questions.filter { it.relatedWeek.id == filter.relatedWeek }
 
         if (filter.apiFunction == "RANDOMIZE") {
+            logger.info { "RANDOMIZE triggered" }
             questions = questions.shuffled()
         }
 
@@ -38,16 +43,27 @@ class QuestionsService(
             questions = questions.sortedBy { it.phase }
         }
 
-        return questions.map { question -> question.toQuestionListDto(filesService) }
+        return questions.map { question -> question.toQuestionDto(filesService) }
     }
 
-    fun createSeveral(dto: List<CreateQuestionParams>): List<QuestionDto> {
-        val savedQuestions = questionRepository.saveAll(dto.map { question ->
-            val week = weeksService.getById(question.relatedWeek)
-            val game = gamesService.getById(question.relatedGame)
-            question.fromCreateToDto(week, game).toQuestionEntity()
+    fun createSeveral(dto: List<CreateQuestionDto>): List<QuestionDto> {
+        val savedQuestions = questionRepository.saveAll(dto.map {
+            val relatedWeek = weekRepository.findByIdOrNull(it.relatedWeek) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+            val relatedGame = gameRepository.findByIdOrNull(it.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+            Question(
+                null,
+                relatedWeek,
+                it.type,
+                it.questionDescription,
+                it.phase,
+                it.function,
+                it.punishment,
+                null,
+                relatedGame
+            )
         })
 
+        gamesService.update(savedQuestions.first().relatedGame.id!!, UpdateGameDto(null, null))
         return savedQuestions.map { question -> question.toQuestionDto(filesService) }
     }
 
@@ -56,27 +72,53 @@ class QuestionsService(
         return question.toQuestionDto(filesService)
     }
 
-    fun create(dto: CreateQuestionParams): QuestionDto {
-        val relatedWeek = weeksService.getById(dto.relatedWeek)
-        val relatedGame = gamesService.getById(dto.relatedGame)
-        return questionRepository.save(dto.fromCreateToDto(relatedWeek, relatedGame).toQuestionEntity()).toQuestionDto(filesService)
+    fun create(dto: CreateQuestionDto): QuestionDto {
+        val relatedWeek = weekRepository.findByIdOrNull(dto.relatedWeek) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val relatedGame = gameRepository.findByIdOrNull(dto.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        gamesService.update(relatedGame.id!!, UpdateGameDto(null, null))
+
+        return questionRepository.save(Question(
+            null,
+            relatedWeek,
+            dto.type,
+            dto.questionDescription,
+            dto.phase,
+            dto.function,
+            dto.punishment,
+            null,
+            relatedGame
+        )).toQuestionDto(filesService)
     }
 
-    fun update(id: Int, question: QuestionDto): QuestionDto {
-        return if (questionRepository.existsById(id)) {
-            questionRepository.save(question.toQuestionEntity()).toQuestionDto(filesService)
-        } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    fun update(id: Int, dto: UpdateQuestionDto): QuestionDto {
+        val questionToUpdate = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        val updatedQuestion = Question(
+            questionToUpdate.id,
+            questionToUpdate.relatedWeek,
+            dto.type ?: questionToUpdate.type,
+            dto.questionDescription ?: questionToUpdate.questionDescription,
+            dto.phase ?: questionToUpdate.phase,
+            dto.function ?: questionToUpdate.function,
+            dto.punishment ?: questionToUpdate.punishment,
+            questionToUpdate.questionPicture,
+            questionToUpdate.relatedGame
+        )
+
+        gamesService.update(questionToUpdate.relatedGame.id!!, UpdateGameDto(null, null))
+        return questionRepository.save(updatedQuestion).toQuestionDto(filesService)
     }
 
-    fun addPlayerToQuestions(players: List<String>, questions: List<QuestionListDto>): List<QuestionListDto> {
-        val updatedQuestions : MutableList<QuestionListDto> = mutableListOf()
+    fun addPlayerToQuestions(players: List<String>, questions: List<QuestionDto>): List<QuestionDto> {
+        val updatedQuestions : MutableList<QuestionDto> = mutableListOf()
 
         try {
             for (question in questions) {
                 val updatedQuestionDescription: String =
                     switchOutQuestionStringWithPlayers(question.questionDescription, players)
                 updatedQuestions.add(
-                    QuestionListDto(
+                    QuestionDto(
                         question.id,
                         question.relatedWeek,
                         question.type,
@@ -101,9 +143,9 @@ class QuestionsService(
     fun addPlayerToQuestionsInGame(
         players: List<String>,
         currentIndex: Int,
-        uneditedQuestions: List<QuestionListDto>,
-        editedQuestions: List<QuestionListDto>
-    ): List<QuestionListDto> {
+        uneditedQuestions: List<QuestionDto>,
+        editedQuestions: List<QuestionDto>
+    ): List<QuestionDto> {
         val firstPartOfQuestions = editedQuestions.subList(0, currentIndex + 1)
         logger.info { firstPartOfQuestions }
         val secondPartOfQuestions = uneditedQuestions.subList(currentIndex + 1, editedQuestions.size)

@@ -31,13 +31,7 @@ class Config: WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
-            .mvcMatchers("/v2/auth/").authenticated()
-            .mvcMatchers("/v2/cms/game/").authenticated()
-            .mvcMatchers("/v2/cms/question/").authenticated()
-            .mvcMatchers("/v2/cms/week/").authenticated()
-            .mvcMatchers("/v2/common/idea/").authenticated()
-            .mvcMatchers("/v2/tasks/comment/").authenticated()
-            .mvcMatchers("/v2/tasks/task/").authenticated()
+            .anyRequest().authenticated()
             .and()
             .oauth2ResourceServer().jwt()
     }

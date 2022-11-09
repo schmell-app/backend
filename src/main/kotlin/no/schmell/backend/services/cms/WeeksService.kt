@@ -1,8 +1,11 @@
 package no.schmell.backend.services.cms
 
 import no.schmell.backend.repositories.cms.WeekRepository
-import no.schmell.backend.dtos.cms.*
-import no.schmell.backend.services.files.FilesService
+import no.schmell.backend.dtos.cms.week.CreateWeekDto
+import no.schmell.backend.dtos.cms.week.WeekDto
+import no.schmell.backend.dtos.cms.week.WeekFilters
+import no.schmell.backend.entities.cms.Week
+import no.schmell.backend.repositories.cms.GameRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -11,8 +14,7 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class WeeksService(
     private val weekRepository: WeekRepository,
-    val gamesService: GamesService,
-    val filesService: FilesService
+    val gameRepository: GameRepository,
     ) {
 
     fun getAll(filters: WeekFilters): List<WeekDto> {
@@ -22,25 +24,25 @@ class WeeksService(
 
         if (filters.weekNumber != null) allWeeks = allWeeks.filter { it.weekNumber == filters.weekNumber }
 
-        return allWeeks.map { week -> week.toWeekDto(filesService) }
+        return allWeeks.map { week -> week.toWeekDto() }
     }
 
     fun getById(id: Int): WeekDto {
         val week = weekRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return week.toWeekDto(filesService)
+        return week.toWeekDto()
     }
 
-    fun create(dto: CreateWeekParams): WeekDto {
+    fun create(dto: CreateWeekDto): WeekDto {
         return if ((1..52).contains(dto.weekNumber)) {
-            val game = gamesService.getById(dto.relatedGame)
-            weekRepository.save(dto.fromCreateToDto(game).toWeekEntity()).toWeekDto(filesService)
-        } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Week number must be between 1 and 52")
-    }
+            val relatedGame = gameRepository.findByIdOrNull(dto.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
-    fun update(id: Int, week: WeekDto): WeekDto {
-        return if (weekRepository.existsById(id)) {
-            weekRepository.save(week.toWeekEntity()).toWeekDto(filesService)
-        } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+            val createdWeek = Week(
+                null,
+                relatedGame,
+                dto.weekNumber
+            )
+            weekRepository.save(createdWeek).toWeekDto()
+        } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Week number must be between 1 and 52")
     }
 
     fun delete(id: Int) {

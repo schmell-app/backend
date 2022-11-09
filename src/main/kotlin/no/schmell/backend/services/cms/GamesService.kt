@@ -3,13 +3,19 @@ package no.schmell.backend.services.cms
 import mu.KLogging
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.dtos.cms.*
+import no.schmell.backend.dtos.cms.game.CreateGameDto
+import no.schmell.backend.dtos.cms.game.GameDto
+import no.schmell.backend.dtos.cms.game.GameFilters
+import no.schmell.backend.dtos.cms.game.UpdateGameDto
 import no.schmell.backend.entities.cms.Game
+import no.schmell.backend.lib.enums.GameStatus
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Service
 class GamesService(
@@ -32,12 +38,30 @@ class GamesService(
         return game.toGameDto(filesService)
     }
 
-    fun create(dto: GameDto): GameDto = gameRepository.save(dto.toGameEntity()).toGameDto(filesService)
+    fun create(dto: CreateGameDto): GameDto {
+        val game = Game(
+            null,
+            dto.name,
+            dto.description,
+            LocalDateTime.now(),
+            dto.status ?: GameStatus.DEVELOPMENT,
+            null
+        )
+        return gameRepository.save(game).toGameDto(filesService)
+    }
 
-    fun update(id: Int, game: GameDto): GameDto {
-        return if (gameRepository.existsById(id)) {
-            gameRepository.save(game.toGameEntity()).toGameDto(filesService)
-        } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    fun update(id: Int, dto: UpdateGameDto): GameDto {
+        val gameToUpdate = gameRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        val updatedGame = Game(
+            gameToUpdate.id,
+            gameToUpdate.name,
+            dto.description ?: gameToUpdate.description,
+            LocalDateTime.now(),
+            dto.status ?: gameToUpdate.status,
+            gameToUpdate.logo
+        )
+        return gameRepository.save(updatedGame).toGameDto(filesService)
     }
 
     fun delete(id: Int) {
@@ -59,7 +83,6 @@ class GamesService(
                 game.lastUpdated,
                 game.status,
                 uploadedFile?.fileName,
-                game.releaseDate
             )).toGameDto(filesService)
 
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)

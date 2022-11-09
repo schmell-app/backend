@@ -63,8 +63,8 @@ class Task(
                 it.deadline,
                 it.category,
                 it.priority,
-                it.responsibleUser.toUserDto(filesService),
-                it.relatedGame?.toGameDto(filesService),
+                it.responsibleUser.toSimpleUserDto(filesService),
+                it.relatedGame?.toSimpleGameDto(),
                 it.lastUpdated
             )
         }
