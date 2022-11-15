@@ -9,43 +9,41 @@ import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
 import no.schmell.backend.services.tasks.TasksService
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @RestController
-@RequestMapping("/v2/tasks/task")
+@RequestMapping("/v2/tasks")
+@CrossOrigin("http://localhost:3000")
 class TasksController(val tasksService: TasksService) {
 
     @GetMapping("/{id}/")
+    @ResponseStatus(HttpStatus.OK)
     fun getTask(@PathVariable("id") id: String): TaskDto = tasksService.getById(id.toInt())
 
     @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
     fun getTasks(
-        @RequestParam(value = "status", required = false) status: TaskStatus?,
-        @RequestParam(value = "priority", required = false) priority: TaskPriority?,
-        @RequestParam(value = "id", required = false) id: Int?,
-        @RequestParam(value = "category", required = false) category: TaskCategory?,
-        @RequestParam(value = "responsibleUser", required = false) responsibleUser: Int?,
+        @RequestParam(value = "status", required = false) status: String?,
+        @RequestParam(value = "priority", required = false) priority: String?,
+        @RequestParam(value = "category", required = false) category: String?,
+        @RequestParam(value = "responsibleUser", required = false) responsibleUser: String?,
         @RequestParam(value = "sort", required = false) sort: String?,
+        @RequestParam(value = "toDate", required = false) toDate: String?,
     ): List<TaskDto> =
         tasksService.getAll(
             TaskFilters(
-            priority,
-            status,
-            id,
-            category,
-            responsibleUser,
-            sort
-        ))
+                priority?.split("+")?.map { TaskPriority.valueOf(it) },
+                status?.split("+")?.map { TaskStatus.valueOf(it) },
+                category?.split("+")?.map { TaskCategory.valueOf(it) },
+                responsibleUser?.toInt(),
+                sort,
+                toDate?.let { LocalDateTime.parse(toDate, DateTimeFormatter.ISO_DATE_TIME) }
+            )
+        )
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)

@@ -56,7 +56,7 @@ class AuthService(
                 userDto.alertsForTasks ?: userToUpdate.alertsForTasks,
                 userDto.alertsForDeadlines ?: userToUpdate.alertsForDeadlines,
                 userToUpdate.profilePicture,
-                userToUpdate.auth0Id
+                userDto.auth0Id ?: userToUpdate.auth0Id
             )
             userRepository.save(updatedUser).toUserDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)

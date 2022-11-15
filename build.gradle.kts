@@ -36,7 +36,7 @@ dependencies {
 	implementation("org.projectlombok:lombok")
 
 	//Logging
-	implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
 
 	//Other
 	implementation("org.jetbrains.kotlin:kotlin-reflect")

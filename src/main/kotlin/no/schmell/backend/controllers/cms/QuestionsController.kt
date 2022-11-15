@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/v2/cms/question")
+@CrossOrigin("http://localhost:3000")
 class QuestionsController(val questionsService: QuestionsService) {
 
     @GetMapping("/{id}/")
