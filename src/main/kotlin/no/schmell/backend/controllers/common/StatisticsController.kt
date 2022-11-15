@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/v2/common/statistics/")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class StatisticsController(
     val statisticsService: StatisticsService
 ) {
