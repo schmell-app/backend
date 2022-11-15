@@ -25,4 +25,5 @@ data class UpdateUserDto(
     val lastName: String?,
     val alertsForTasks: Boolean?,
     val alertsForDeadlines: Boolean?,
+    val auth0Id: String?
 )

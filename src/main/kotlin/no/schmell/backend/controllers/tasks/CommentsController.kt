@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/v2/tasks/comment")
+@CrossOrigin("http://localhost:3000")
 class CommentsController(val commentsService: CommentsService) {
 
     @GetMapping("/{id}/")
@@ -16,8 +17,8 @@ class CommentsController(val commentsService: CommentsService) {
 
     @GetMapping("")
     fun getComments(
-        @RequestParam(value = "relatedTask", required = false) relatedTask: Int?): List<CommentDto> =
-        commentsService.getAll(CommentFilters(relatedTask))
+        @RequestParam(value = "relatedTask", required = false) relatedTask: String?): List<CommentDto> =
+        commentsService.getAll(CommentFilters(relatedTask?.toInt()))
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)

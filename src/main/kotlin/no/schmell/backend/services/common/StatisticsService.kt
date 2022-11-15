@@ -49,9 +49,9 @@ class StatisticsService(
                 questionsByGame,
             ),
             taskCount = TaskCount(
-                unsolved = tasks.filter { task -> task.status != TaskStatus.FINISHED }.size,
+                unsolved = tasks.filter { task -> task.status != TaskStatus.DONE }.size,
                 overdue = tasks
-                    .filter { task -> task.status != TaskStatus.FINISHED }
+                    .filter { task -> task.status != TaskStatus.DONE }
                     .count { task -> task.deadline <= LocalDateTime.now() },
                 countByCategory,
             )

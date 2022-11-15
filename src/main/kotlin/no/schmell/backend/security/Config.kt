@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
 import org.springframework.security.oauth2.core.OAuth2TokenValidator
 import org.springframework.security.oauth2.jwt.*
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsUtils
 
 @EnableWebSecurity
 class Config: WebSecurityConfigurerAdapter() {
@@ -34,5 +36,7 @@ class Config: WebSecurityConfigurerAdapter() {
             .anyRequest().authenticated()
             .and()
             .oauth2ResourceServer().jwt()
+        http.cors()
+        http.csrf().disable()
     }
 }

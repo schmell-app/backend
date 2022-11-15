@@ -1,5 +1,6 @@
 package no.schmell.backend.services.tasks
 
+import mu.KLogging
 import no.schmell.backend.repositories.tasks.TaskRepository
 import no.schmell.backend.utils.sortTaskList
 import no.schmell.backend.dtos.tasks.*
@@ -20,18 +21,19 @@ class TasksService(
     private val tasksRepository: TaskRepository,
     val userRepository: UserRepository,
     val gameRepository: GameRepository,
-    val gamesService: GamesService,
     val filesService: FilesService) {
+
+    companion object: KLogging()
 
     fun getAll(filters: TaskFilters): List<TaskDto> {
         var tasks = tasksRepository.findAll()
 
-        if (filters.status != null) tasks = tasks.filter { it.status == filters.status }
-        if (filters.priority != null) tasks = tasks.filter { it.priority == filters.priority }
-        if (filters.taskId != null) tasks = tasks.filter { it.id == filters.taskId }
-        if (filters.category != null) tasks = tasks.filter { it.category == filters.category }
+        if (filters.status != null) tasks = tasks.filter { it.status in filters.status }
+        if (filters.priority != null) tasks = tasks.filter { it.priority in filters.priority }
+        if (filters.category != null) tasks = tasks.filter { it.category in filters.category }
         if (filters.responsibleUser != null) tasks = tasks.filter { it.responsibleUser.id == filters.responsibleUser }
         if (filters.sort != null) tasks = sortTaskList(tasks, filters.sort)
+        if (filters.toDate != null) tasks = tasks.filter { it.deadline.isBefore(filters.toDate) }
 
         return tasks.map { task -> task.toTaskDto(filesService) }
     }
@@ -51,7 +53,7 @@ class TasksService(
             dto.deadline,
             dto.category,
             dto.priority,
-            userRepository.findByIdOrNull(dto.responsibleUser) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND),
+            userRepository.findByIdOrNull(dto.responsibleUser) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"),
             gameRepository.findByIdOrNull(dto.relatedGame ?: 0),
             LocalDateTime.now()
         )

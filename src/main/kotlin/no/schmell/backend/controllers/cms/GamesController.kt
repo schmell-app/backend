@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/v2/cms/game")
+@CrossOrigin("http://localhost:3000")
 class GamesController(val gamesService: GamesService) {
 
 
