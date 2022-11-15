@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/v2/users")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class AuthController(val authService: AuthService) {
 
     @GetMapping("/{id}/")

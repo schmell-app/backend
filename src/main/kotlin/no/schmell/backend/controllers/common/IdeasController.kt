@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/v2/common/idea")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class IdeasController(val ideasService: IdeasService) {
 
     @GetMapping("/{id}/")

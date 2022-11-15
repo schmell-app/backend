@@ -17,7 +17,7 @@ import java.util.Date
 
 @RestController
 @RequestMapping("/v2/tasks")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class TasksController(val tasksService: TasksService) {
 
     @GetMapping("/{id}/")
