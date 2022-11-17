@@ -1,16 +1,13 @@
 package no.schmell.backend.controllers.tasks
 
-import no.schmell.backend.dtos.tasks.CreateTaskDto
-import no.schmell.backend.dtos.tasks.TaskDto
-import no.schmell.backend.dtos.tasks.TaskFilters
-import no.schmell.backend.dtos.tasks.UpdateTaskDto
+import mu.KLogging
+import no.schmell.backend.dtos.tasks.*
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
 import no.schmell.backend.services.tasks.TasksService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -19,6 +16,8 @@ import java.util.Date
 @RequestMapping("/v2/tasks")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class TasksController(val tasksService: TasksService) {
+
+    companion object: KLogging()
 
     @GetMapping("/{id}/")
     @ResponseStatus(HttpStatus.OK)
@@ -33,17 +32,24 @@ class TasksController(val tasksService: TasksService) {
         @RequestParam(value = "responsibleUser", required = false) responsibleUser: String?,
         @RequestParam(value = "sort", required = false) sort: String?,
         @RequestParam(value = "toDate", required = false) toDate: String?,
-    ): List<TaskDto> =
-        tasksService.getAll(
-            TaskFilters(
-                priority?.split("+")?.map { TaskPriority.valueOf(it) },
-                status?.split("+")?.map { TaskStatus.valueOf(it) },
-                category?.split("+")?.map { TaskCategory.valueOf(it) },
-                responsibleUser?.toInt(),
-                sort,
-                toDate?.let { LocalDateTime.parse(toDate, DateTimeFormatter.ISO_DATE_TIME) }
+        @RequestParam(value = "page", required = false, defaultValue = "1") page: String = "1",
+        @RequestParam(value = "pageSize", required = false, defaultValue = "10") pageSize: String = "10"
+    ): TaskPaginatedResponse {
+
+        return tasksService.getAll(
+                TaskFilters(
+                    priority?.split("+")?.map { TaskPriority.valueOf(it) },
+                    status?.split("+")?.map { TaskStatus.valueOf(it) },
+                    category?.split("+")?.map { TaskCategory.valueOf(it) },
+                    responsibleUser?.toInt(),
+                    sort,
+                    toDate?.let { LocalDateTime.parse(toDate, DateTimeFormatter.ISO_DATE_TIME) },
+                    page.toInt(),
+                    pageSize.toInt(),
+                )
             )
-        )
+
+    }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
