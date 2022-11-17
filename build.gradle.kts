@@ -24,9 +24,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
 	//Security
-	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-	implementation("org.springframework.boot:spring-boot-starter-security")
 
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -47,7 +44,12 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
 	//AWS
-	implementation("com.amazonaws:aws-java-sdk-s3:1.12.328")
+	implementation("com.amazonaws:aws-java-sdk-s3:1.12.338")
+
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.security:spring-security-oauth2-resource-server")
+	implementation("org.springframework.security:spring-security-oauth2-jose")
+	implementation("org.springframework.security:spring-security-config")
 
 	//DB
 	//runtimeOnly("com.h2database:h2")
@@ -55,7 +57,6 @@ dependencies {
 
 	//Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.springframework.security:spring-security-test")
 }
 
 dependencyManagement {

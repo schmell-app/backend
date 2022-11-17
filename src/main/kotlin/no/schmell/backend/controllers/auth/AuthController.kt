@@ -22,7 +22,6 @@ class AuthController(val authService: AuthService) {
 
     @GetMapping("/find/")
     @ResponseStatus(HttpStatus.OK)
-    @CrossOrigin("http://localhost:3000")
     fun getUserByAuth0Id(
         @RequestParam(value = "auth0Id", required = true) auth0Id: String)
     : UserDto = authService.getUserByAuth0Id(auth0Id)
