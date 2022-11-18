@@ -10,6 +10,7 @@ import no.schmell.backend.repositories.auth.UserRepository
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.services.cms.GamesService
 import no.schmell.backend.services.files.FilesService
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -25,17 +26,32 @@ class TasksService(
 
     companion object: KLogging()
 
-    fun getAll(filters: TaskFilters): List<TaskDto> {
-        var tasks = tasksRepository.findAll()
-
-        if (filters.status != null) tasks = tasks.filter { it.status in filters.status }
-        if (filters.priority != null) tasks = tasks.filter { it.priority in filters.priority }
-        if (filters.category != null) tasks = tasks.filter { it.category in filters.category }
-        if (filters.responsibleUser != null) tasks = tasks.filter { it.responsibleUser.id == filters.responsibleUser }
+    fun getAll(filters: TaskFilters): TaskPaginatedResponse {
+        var tasks = tasksRepository.findAllByPriorityIsInAndCategoryIsInAndCategoryIsInAndResponsibleUserIdAndDeadlineBefore(
+            filters.priority,
+            filters.status,
+            filters.category,
+            filters.responsibleUser,
+            filters.toDate,
+            PageRequest.of(filters.page - 1, filters.pageSize)
+        )
         if (filters.sort != null) tasks = sortTaskList(tasks, filters.sort)
-        if (filters.toDate != null) tasks = tasks.filter { it.deadline.isBefore(filters.toDate) }
 
-        return tasks.map { task -> task.toTaskDto(filesService) }
+
+        val total = tasksRepository.countAllByPriorityIsInAndCategoryIsInAndCategoryIsInAndResponsibleUserIdAndDeadlineBefore(
+            filters.priority,
+            filters.status,
+            filters.category,
+            filters.responsibleUser,
+            filters.toDate
+        )
+
+        return TaskPaginatedResponse(
+            tasks = tasks,
+            total = total,
+            page = filters.page,
+            lastPage = (total / filters.pageSize) + 1
+        )
     }
 
     fun getById(id: Int): TaskDto {

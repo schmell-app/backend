@@ -2,6 +2,7 @@ package no.schmell.backend.dtos.tasks
 
 import no.schmell.backend.dtos.auth.SimpleUserDto
 import no.schmell.backend.dtos.cms.game.SimpleGameDto
+import no.schmell.backend.entities.tasks.Task
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
@@ -20,6 +21,13 @@ data class TaskDto(
     val relatedGame : SimpleGameDto?,
     val lastUpdated : LocalDateTime,
 )
+data class TaskPaginatedResponse (
+    val tasks: List<Task>,
+    val total: Int,
+    val page: Int,
+    val lastPage: Int,
+)
+
 data class CreateTaskDto(
     val title: String,
     val description: String,

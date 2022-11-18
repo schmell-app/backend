@@ -12,4 +12,6 @@ data class TaskFilters(
     val responsibleUser: Int?,
     val sort: String?,
     val toDate: LocalDateTime?,
+    val page: Int,
+    val pageSize: Int,
 )

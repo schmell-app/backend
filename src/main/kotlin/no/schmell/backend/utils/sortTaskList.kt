@@ -13,7 +13,7 @@ import no.schmell.backend.entities.tasks.Task
  * @param listToSort - sortValue
  * @return sortedList
  */
-fun sortTaskList(listToSort: Iterable<Task>, sortValue: String): Iterable<Task> {
+fun sortTaskList(listToSort: List<Task>, sortValue: String): List<Task> {
     when (sortValue) {
         "PRIORITY_DESC" -> return listToSort.sortedBy { it.priority }
         "PRIORITY_ASC" -> return listToSort.sortedByDescending { it.priority }
