@@ -1,6 +1,5 @@
 package no.schmell.backend.controllers.tasks
 
-import mu.KLogging
 import no.schmell.backend.dtos.tasks.*
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
@@ -10,14 +9,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 @RestController
 @RequestMapping("/v2/tasks")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class TasksController(val tasksService: TasksService) {
-
-    companion object: KLogging()
 
     @GetMapping("/{id}/")
     @ResponseStatus(HttpStatus.OK)
