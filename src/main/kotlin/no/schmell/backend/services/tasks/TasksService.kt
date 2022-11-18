@@ -47,7 +47,7 @@ class TasksService(
         )
 
         return TaskPaginatedResponse(
-            tasks = tasks,
+            tasks = tasks.map { it.toTaskDto(filesService) },
             total = total,
             page = filters.page,
             lastPage = (total / filters.pageSize) + 1
