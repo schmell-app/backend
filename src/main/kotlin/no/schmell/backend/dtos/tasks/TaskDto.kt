@@ -22,7 +22,7 @@ data class TaskDto(
     val lastUpdated : LocalDateTime,
 )
 data class TaskPaginatedResponse (
-    val tasks: List<Task>,
+    val tasks: List<TaskDto>,
     val total: Int,
     val page: Int,
     val lastPage: Int,
