@@ -24,8 +24,9 @@ class Question(
     @Column(name = "phase", nullable = false)
     val phase : Int,
 
-    @Column(name = "function", nullable = true)
-    val function : String?,
+    @OneToOne(cascade = [CascadeType.DETACH])
+    @JoinColumn(name = "question_function_id", nullable = true)
+    val function : QuestionFunction?,
 
     @Column(name = "punishment", nullable = false)
     val punishment : Int,
@@ -46,7 +47,7 @@ class Question(
                 it.type,
                 it.questionDescription,
                 it.phase,
-                it.function,
+                it.function?.toQuestionFunctionDto(),
                 it.punishment,
                 it.questionPicture,
                 it.relatedGame.id!!,
