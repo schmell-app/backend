@@ -9,7 +9,9 @@ import no.schmell.backend.dtos.cms.question.QuestionDto
 import no.schmell.backend.dtos.cms.question.QuestionFilter
 import no.schmell.backend.dtos.cms.question.UpdateQuestionDto
 import no.schmell.backend.entities.cms.Question
+import no.schmell.backend.entities.cms.QuestionFunction
 import no.schmell.backend.repositories.cms.GameRepository
+import no.schmell.backend.repositories.cms.QuestionFunctionRepository
 import no.schmell.backend.repositories.cms.WeekRepository
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
@@ -23,6 +25,7 @@ class QuestionsService(
     private val questionRepository: QuestionRepository,
     val weekRepository: WeekRepository,
     val gameRepository: GameRepository,
+    val questionFunctionRepository: QuestionFunctionRepository,
     val filesService: FilesService,
     val gamesService: GamesService,
 ) {
@@ -50,13 +53,23 @@ class QuestionsService(
         val savedQuestions = questionRepository.saveAll(dto.map {
             val relatedWeek = weekRepository.findByIdOrNull(it.relatedWeek) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
             val relatedGame = gameRepository.findByIdOrNull(it.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+            var relatedFunction: QuestionFunction? = null
+
+            it.function?.let { questionFunction -> relatedFunction = questionFunctionRepository.save(QuestionFunction(
+                null,
+                questionFunction.timer,
+                questionFunction.answer,
+                questionFunction.challenges,
+                questionFunction.questions,
+                questionFunction.options
+            )) }
             Question(
                 null,
                 relatedWeek,
                 it.type,
                 it.questionDescription,
                 it.phase,
-                it.function,
+                relatedFunction,
                 it.punishment,
                 null,
                 relatedGame
@@ -78,13 +91,24 @@ class QuestionsService(
 
         gamesService.update(relatedGame.id!!, UpdateGameDto(null, null))
 
+        var relatedFunction: QuestionFunction? = null
+
+        dto.function?.let { it -> relatedFunction = questionFunctionRepository.save(QuestionFunction(
+            null,
+            it.timer,
+            it.answer,
+            it.challenges,
+            it.questions,
+            it.options
+        )) }
+
         return questionRepository.save(Question(
             null,
             relatedWeek,
             dto.type,
             dto.questionDescription,
             dto.phase,
-            dto.function,
+            relatedFunction,
             dto.punishment,
             null,
             relatedGame
@@ -94,13 +118,37 @@ class QuestionsService(
     fun update(id: Int, dto: UpdateQuestionDto): QuestionDto {
         val questionToUpdate = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
+        var relatedFunction: QuestionFunction? = null
+        if (questionToUpdate.function == null) {
+            relatedFunction = questionFunctionRepository.save(QuestionFunction(
+                null,
+                dto.function?.timer,
+                dto.function?.answer,
+                dto.function?.challenges,
+                dto.function?.questions,
+                dto.function?.options
+            ))
+        }
+
+        if (questionToUpdate.function != null && dto.function != null) {
+            val updatedFunction = QuestionFunction(
+                questionToUpdate.function.id,
+                dto.function.timer ?: questionToUpdate.function.timer,
+                dto.function.answer ?: questionToUpdate.function.answer,
+                dto.function.challenges ?: questionToUpdate.function.challenges,
+                dto.function.questions ?: questionToUpdate.function.questions,
+                dto.function.options ?: questionToUpdate.function.options
+            )
+            relatedFunction = questionFunctionRepository.save(updatedFunction)
+        }
+
         val updatedQuestion = Question(
             questionToUpdate.id,
             questionToUpdate.relatedWeek,
             dto.type ?: questionToUpdate.type,
             dto.questionDescription ?: questionToUpdate.questionDescription,
             dto.phase ?: questionToUpdate.phase,
-            dto.function ?: questionToUpdate.function,
+            relatedFunction ?: questionToUpdate.function,
             dto.punishment ?: questionToUpdate.punishment,
             questionToUpdate.questionPicture,
             questionToUpdate.relatedGame

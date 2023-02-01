@@ -6,7 +6,7 @@ data class QuestionDto(
     val type: String,
     val questionDescription: String,
     val phase: Int,
-    val function: String?,
+    val function: QuestionFunctionDto?,
     val punishment: Int,
     val questionPicture: String?,
     val relatedGame: Int,
@@ -18,7 +18,7 @@ data class CreateQuestionDto(
     val type: String,
     val questionDescription: String,
     val phase: Int,
-    val function: String?,
+    val function: CreateQuestionFunctionDto?,
     val punishment: Int,
     val relatedGame: Int
 )
@@ -27,6 +27,6 @@ data class UpdateQuestionDto(
     val type: String?,
     val questionDescription: String?,
     val phase: Int?,
-    val function: String?,
+    val function: UpdateQuestionFunction?,
     val punishment: Int?
 )
