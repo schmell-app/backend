@@ -5,11 +5,12 @@ import no.schmell.backend.repositories.tasks.TaskRepository
 import no.schmell.backend.utils.sortTaskList
 import no.schmell.backend.dtos.tasks.*
 import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.lib.Mailer
 import no.schmell.backend.lib.enums.TaskStatus
 import no.schmell.backend.repositories.auth.UserRepository
 import no.schmell.backend.repositories.cms.GameRepository
-import no.schmell.backend.services.cms.GamesService
 import no.schmell.backend.services.files.FilesService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -25,6 +26,12 @@ class TasksService(
     val filesService: FilesService) {
 
     companion object: KLogging()
+
+    @Value("\${spring.mail.api-key}")
+    lateinit var apiKey: String
+
+    @Value("\${spring.mail.admin-url}")
+    lateinit var adminUrl: String
 
     fun getAll(filters: TaskFilters): TaskPaginatedResponse {
         var tasks = tasksRepository.findAllByPriorityIsInAndCategoryIsInAndCategoryIsInAndResponsibleUserIdAndDeadlineBefore(
@@ -60,7 +67,7 @@ class TasksService(
     }
 
     fun create(dto: CreateTaskDto): TaskDto {
-        val createdTask = Task(
+        val createdTaskDto = Task(
             null,
             LocalDateTime.now(),
             dto.title,
@@ -73,7 +80,11 @@ class TasksService(
             gameRepository.findByIdOrNull(dto.relatedGame ?: 0),
             LocalDateTime.now()
         )
-        return tasksRepository.save(createdTask).toTaskDto(filesService)
+        val createdTask = tasksRepository.save(createdTaskDto)
+        val mailer = Mailer(apiKey, adminUrl)
+        mailer.sendTaskCreatedEmail(getUserEmails(), createdTask)
+
+        return createdTask.toTaskDto(filesService)
     }
 
     fun update(id: Int, dto: UpdateTaskDto): TaskDto {
@@ -100,5 +111,9 @@ class TasksService(
         return if (tasksRepository.existsById(id)) {
             tasksRepository.deleteById(id)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    }
+
+    private fun getUserEmails(): List<String> {
+        return userRepository.findAll().filter { it.alertsForTasks }.map { it.email }
     }
 }
