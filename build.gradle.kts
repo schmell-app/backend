@@ -40,11 +40,15 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("commons-io:commons-io:2.11.0")
 
+	//Sendgrid
+	implementation("com.sendgrid:sendgrid-java:4.9.3")
+	implementation("com.sendgrid:java-http-client:4.5.1")
+
 	//Dev tools
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
 	//AWS
-	implementation("com.amazonaws:aws-java-sdk-s3:1.12.338")
+	implementation("com.amazonaws:aws-java-sdk-s3:1.12.382")
 
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-oauth2-resource-server")
