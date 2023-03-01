@@ -5,6 +5,7 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import mu.KLogging
+import no.schmell.backend.dtos.crm.CreateContactForm
 import no.schmell.backend.entities.cms.Game
 import no.schmell.backend.entities.tasks.Task
 
@@ -86,6 +87,22 @@ class Mailer(
                     "<p>Spillbeskrivelse: ${game.description}</p>" +
                     "<p>Sist oppdatert: ${game.lastUpdated}</p>" +
                     "<p>Oppdater spillet her: <a href=\"${adminUrl}/games/${game.id}/weeks\">${adminUrl}/games/${game.id}/weeks</a></p>" +
+                    "<p>Med vennlig hilsen,</p>" +
+                    "<p>Schmell 🤘🏾</p>"
+        )
+        this.sendMail(from, to, subject, content)
+    }
+
+    fun sendContactFormSubmission(recipients: List<String>, contactForm: CreateContactForm) {
+        val from = Email("admin@schmell.no")
+        val to = recipients.map { Email(it) }
+        val subject = "Ny forespørsel gjennom nettsiden: ${contactForm.type}"
+        val content = Content(
+            "text/html", "" +
+                    "<h1>Ny forespørsel gjennom nettsiden: ${contactForm.type}</h1>" +
+                    "<p>Type: ${contactForm.type}</p>" +
+                    "<p>E-post: ${contactForm.email}</p>" +
+                    "<p>Melding: ${contactForm.message}</p>" +
                     "<p>Med vennlig hilsen,</p>" +
                     "<p>Schmell 🤘🏾</p>"
         )
