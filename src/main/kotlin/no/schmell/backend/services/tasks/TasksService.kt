@@ -10,6 +10,7 @@ import no.schmell.backend.lib.enums.TaskStatus
 import no.schmell.backend.repositories.auth.UserRepository
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.services.files.FilesService
+import org.jobrunr.scheduling.JobScheduler
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
@@ -23,7 +24,8 @@ class TasksService(
     private val tasksRepository: TaskRepository,
     val userRepository: UserRepository,
     val gameRepository: GameRepository,
-    val filesService: FilesService) {
+    val filesService: FilesService,
+    val jobScheduler: JobScheduler) {
 
     companion object: KLogging()
 
@@ -84,6 +86,10 @@ class TasksService(
         val mailer = Mailer(apiKey, adminUrl)
         mailer.sendTaskCreatedEmail(getUserEmails(), createdTask)
 
+        jobScheduler.schedule(
+            createdTask.deadline.minusHours(24)
+        ) { checkIfTaskFinished(createdTask.id!!) }
+
         return createdTask.toTaskDto(filesService)
     }
 
@@ -115,5 +121,13 @@ class TasksService(
 
     private fun getUserEmails(): List<String> {
         return userRepository.findAll().filter { it.alertsForTasks }.map { it.email }
+    }
+
+    fun checkIfTaskFinished(taskId: Int) {
+        val task = tasksRepository.findByIdOrNull(taskId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        if (task.status != TaskStatus.DONE) {
+            val mailer = Mailer(apiKey, adminUrl)
+            mailer.sendTaskReachingDeadline(arrayListOf(task.responsibleUser.email), task)
+        }
     }
 }

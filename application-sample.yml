@@ -38,3 +38,9 @@ aws:
   s3:
     accessKey: # ASK DEVELOPER
     secretKey: # ASK DEVELOPER
+org:
+  jobrunr:
+    background-job-server:
+      enabled: true
+    dashboard:
+      enabled: true
