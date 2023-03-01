@@ -1,0 +1,40 @@
+auth0:
+  audience:
+    v2: # ASK DEVELOPER
+spring:
+  application:
+    name: schmell
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/schmell
+    username: postgres
+    password: postgres
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    generate-ddl: true
+  h2:
+    console:
+      enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: # ASK DEVELOPER
+  mail:
+    api-key: # ASK DEVELOPER
+    admin-url: # ASK DEVELOPER
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+aws:
+  s3:
+    accessKey: # ASK DEVELOPER
+    secretKey: # ASK DEVELOPER
