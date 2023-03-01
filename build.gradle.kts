@@ -63,7 +63,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
 	//JobRunr
-	implementation("org.jobrunr:jobrunr:5.1.0")
 	implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
 }
 
