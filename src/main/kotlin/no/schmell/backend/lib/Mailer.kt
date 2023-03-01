@@ -77,22 +77,6 @@ class Mailer(
         this.sendMail(from, to, subject, content)
     }
 
-    fun sendGameNotUpdated(recipients: List<String>, game: Game) {
-        val from = Email("admin@schmell.no")
-        val to = recipients.map { Email(it) }
-        val subject = "Spillet ${game.name} er ikke oppdatert på over to uker"
-        val content = Content(
-            "text/html", "" +
-                    "<h1>Spillet ${game.name} er ikke oppdatert på over to uker</h1>" +
-                    "<p>Spillbeskrivelse: ${game.description}</p>" +
-                    "<p>Sist oppdatert: ${game.lastUpdated}</p>" +
-                    "<p>Oppdater spillet her: <a href=\"${adminUrl}/games/${game.id}/weeks\">${adminUrl}/games/${game.id}/weeks</a></p>" +
-                    "<p>Med vennlig hilsen,</p>" +
-                    "<p>Schmell 🤘🏾</p>"
-        )
-        this.sendMail(from, to, subject, content)
-    }
-
     fun sendContactFormSubmission(recipients: List<String>, contactForm: CreateContactForm) {
         val from = Email("admin@schmell.no")
         val to = recipients.map { Email(it) }
