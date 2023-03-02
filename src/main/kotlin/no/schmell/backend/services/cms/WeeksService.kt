@@ -39,7 +39,8 @@ class WeeksService(
             val createdWeek = Week(
                 null,
                 relatedGame,
-                dto.weekNumber
+                dto.weekNumber,
+                null,
             )
             weekRepository.save(createdWeek).toWeekDto()
         } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Week number must be between 1 and 52")

@@ -45,6 +45,8 @@ class GamesService(
             dto.description,
             LocalDateTime.now(),
             dto.status ?: GameStatus.DEVELOPMENT,
+            null,
+        null,
             null
         )
         return gameRepository.save(game).toGameDto(filesService)
@@ -59,7 +61,9 @@ class GamesService(
             dto.description ?: gameToUpdate.description,
             LocalDateTime.now(),
             dto.status ?: gameToUpdate.status,
-            gameToUpdate.logo
+            gameToUpdate.logo,
+            gameToUpdate.weeks,
+            gameToUpdate.questions
         )
         return gameRepository.save(updatedGame).toGameDto(filesService)
     }
@@ -83,6 +87,8 @@ class GamesService(
                 game.lastUpdated,
                 game.status,
                 uploadedFile?.fileName,
+                game.weeks,
+                game.questions
             )).toGameDto(filesService)
 
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)

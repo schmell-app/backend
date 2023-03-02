@@ -1,6 +1,8 @@
 package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.week.WeekDto
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import javax.persistence.*
 
 @Entity
@@ -16,6 +18,9 @@ class Week(
 
     @Column(name = "week_number", nullable = false)
     val weekNumber: Int,
+
+    @OneToMany(mappedBy = "relatedWeek", cascade = [CascadeType.REMOVE])
+    val questions: List<Question>?
 ) {
     fun toWeekDto(): WeekDto {
         return this.let {

@@ -2,6 +2,8 @@ package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.question.QuestionDto
 import no.schmell.backend.services.files.FilesService
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import javax.persistence.*
 
 @Entity
@@ -24,7 +26,7 @@ class Question(
     @Column(name = "phase", nullable = false)
     val phase : Int,
 
-    @OneToOne(cascade = [CascadeType.DETACH])
+    @OneToOne(cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "question_function_id", nullable = true)
     val function : QuestionFunction?,
 

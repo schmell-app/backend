@@ -29,6 +29,12 @@ class Game(
 
     @Column(name="logo", nullable = true)
     val logo: String?,
+
+    @OneToMany(mappedBy = "relatedGame", cascade = [CascadeType.REMOVE])
+    val weeks: List<Week>?,
+
+    @OneToMany(mappedBy = "relatedGame", cascade = [CascadeType.REMOVE])
+    val questions: List<Question>?
 ){
     fun toGameDto(filesService: FilesService): GameDto {
         return this.let {
