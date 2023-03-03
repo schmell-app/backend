@@ -2,16 +2,19 @@ package no.schmell.backend.services.crm
 
 import mu.KLogging
 import no.schmell.backend.dtos.crm.ContactFormFilters
+import no.schmell.backend.dtos.crm.ContactFormPaginatedResponse
 import no.schmell.backend.dtos.crm.CreateContactForm
 import no.schmell.backend.entities.crm.ContactForm
 import no.schmell.backend.lib.Mailer
 import no.schmell.backend.repositories.auth.UserRepository
 import no.schmell.backend.repositories.crm.ContactFormRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Service
 class ContactFormService(
@@ -27,16 +30,28 @@ class ContactFormService(
     @Value("\${spring.mail.admin-url}")
     lateinit var adminUrl: String
 
-    fun getAll(filters: ContactFormFilters): List<ContactForm> {
-        var contactForms = contactFormRepository.findAll()
+    fun getAll(filters: ContactFormFilters): ContactFormPaginatedResponse {
+        var contactForms = contactFormRepository.findAllByTypeIsInAndEmailAndAcceptedTerms(
+            filters.type,
+            filters.email,
+            filters.acceptedTerms,
+            PageRequest.of(filters.page - 1, filters.pageSize)
+        )
 
-        if (filters.type != null) contactForms = contactForms.filter { it.type == filters.type }
+        contactForms.sortedBy { it.createdDate }
 
-        if (filters.email != null) contactForms = contactForms.filter { it.email == filters.email }
+        val total = contactFormRepository.countAllByTypeIsInAndEmailAndAcceptedTerms(
+            filters.type,
+            filters.email,
+            filters.acceptedTerms
+        )
 
-        if (filters.acceptedTerms != null) contactForms = contactForms.filter { it.acceptedTerms == filters.acceptedTerms }
-
-        return contactForms.map { contactForm -> contactForm }
+        return ContactFormPaginatedResponse(
+            contactForms,
+            total,
+            page = filters.page,
+            lastPage = (total / filters.pageSize) + 1
+        )
     }
 
     fun getById(id: Int): ContactForm {
@@ -52,7 +67,8 @@ class ContactFormService(
             contactFormDto.type,
             contactFormDto.message,
             contactFormDto.email,
-            contactFormDto.acceptedTerms
+            contactFormDto.acceptedTerms,
+            LocalDateTime.now()
         ))
     }
 

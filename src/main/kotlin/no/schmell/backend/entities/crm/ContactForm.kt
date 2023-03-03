@@ -1,6 +1,7 @@
 package no.schmell.backend.entities.crm
 
 import no.schmell.backend.lib.enums.ContactType
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -22,4 +23,7 @@ class ContactForm (
 
     @Column(name = "accepted_terms", nullable = false)
     val acceptedTerms: Boolean,
+
+    @Column(name = "created_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    val createdDate: LocalDateTime,
 )

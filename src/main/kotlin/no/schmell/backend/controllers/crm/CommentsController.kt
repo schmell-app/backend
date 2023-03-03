@@ -1,14 +1,14 @@
-package no.schmell.backend.controllers.tasks
+package no.schmell.backend.controllers.crm
 
-import no.schmell.backend.dtos.tasks.CommentDto
-import no.schmell.backend.dtos.tasks.CommentFilters
-import no.schmell.backend.dtos.tasks.CreateCommentDto
-import no.schmell.backend.services.tasks.CommentsService
+import no.schmell.backend.dtos.crm.CommentDto
+import no.schmell.backend.dtos.crm.CommentFilters
+import no.schmell.backend.dtos.crm.CreateCommentDto
+import no.schmell.backend.services.crm.CommentsService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/v2/tasks/comment")
+@RequestMapping("/v2/crm/tasks/comment")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class CommentsController(val commentsService: CommentsService) {
 

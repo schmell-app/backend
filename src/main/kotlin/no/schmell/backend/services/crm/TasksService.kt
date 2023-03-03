@@ -1,10 +1,10 @@
-package no.schmell.backend.services.tasks
+package no.schmell.backend.services.crm
 
 import mu.KLogging
-import no.schmell.backend.repositories.tasks.TaskRepository
+import no.schmell.backend.dtos.crm.*
+import no.schmell.backend.repositories.crm.TaskRepository
 import no.schmell.backend.utils.sortTaskList
-import no.schmell.backend.dtos.tasks.*
-import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.entities.crm.Task
 import no.schmell.backend.lib.Mailer
 import no.schmell.backend.lib.enums.TaskStatus
 import no.schmell.backend.repositories.auth.UserRepository

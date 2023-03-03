@@ -6,8 +6,7 @@ import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import mu.KLogging
 import no.schmell.backend.dtos.crm.CreateContactForm
-import no.schmell.backend.entities.cms.Game
-import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.entities.crm.Task
 
 class Mailer(
     private val apiKey : String,

@@ -1,8 +1,7 @@
-package no.schmell.backend.dtos.tasks
+package no.schmell.backend.dtos.crm
 
 import no.schmell.backend.dtos.auth.SimpleUserDto
 import no.schmell.backend.dtos.cms.game.SimpleGameDto
-import no.schmell.backend.entities.tasks.Task
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus

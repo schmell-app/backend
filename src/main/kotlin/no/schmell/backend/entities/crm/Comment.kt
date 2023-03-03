@@ -1,6 +1,6 @@
-package no.schmell.backend.entities.tasks
+package no.schmell.backend.entities.crm
 
-import no.schmell.backend.dtos.tasks.CommentDto
+import no.schmell.backend.dtos.crm.CommentDto
 import no.schmell.backend.entities.auth.User
 import no.schmell.backend.services.files.FilesService
 import java.time.LocalDateTime

@@ -1,17 +1,17 @@
-package no.schmell.backend.controllers.tasks
+package no.schmell.backend.controllers.crm
 
-import no.schmell.backend.dtos.tasks.*
+import no.schmell.backend.dtos.crm.*
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
-import no.schmell.backend.services.tasks.TasksService
+import no.schmell.backend.services.crm.TasksService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @RestController
-@RequestMapping("/v2/tasks")
+@RequestMapping("/v2/crm/tasks")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
 class TasksController(val tasksService: TasksService) {
 
