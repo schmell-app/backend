@@ -1,10 +1,12 @@
-package no.schmell.backend.services.tasks
+package no.schmell.backend.services.crm
 
-import no.schmell.backend.repositories.tasks.CommentRepository
-import no.schmell.backend.dtos.tasks.*
-import no.schmell.backend.entities.tasks.Comment
+import no.schmell.backend.dtos.crm.CommentDto
+import no.schmell.backend.dtos.crm.CommentFilters
+import no.schmell.backend.dtos.crm.CreateCommentDto
+import no.schmell.backend.repositories.crm.CommentRepository
+import no.schmell.backend.entities.crm.Comment
 import no.schmell.backend.repositories.auth.UserRepository
-import no.schmell.backend.repositories.tasks.TaskRepository
+import no.schmell.backend.repositories.crm.TaskRepository
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus

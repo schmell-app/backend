@@ -1,6 +1,6 @@
 package no.schmell.backend.utils
 
-import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.entities.crm.Task
 
 /**
  * Function to sort tasks based on parameter.

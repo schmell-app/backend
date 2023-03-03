@@ -1,4 +1,4 @@
-package no.schmell.backend.dtos.tasks
+package no.schmell.backend.dtos.crm
 
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority

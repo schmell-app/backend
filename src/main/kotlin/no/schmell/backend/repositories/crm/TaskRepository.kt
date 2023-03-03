@@ -1,6 +1,6 @@
-package no.schmell.backend.repositories.tasks
+package no.schmell.backend.repositories.crm
 
-import no.schmell.backend.entities.tasks.Task
+import no.schmell.backend.entities.crm.Task
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus

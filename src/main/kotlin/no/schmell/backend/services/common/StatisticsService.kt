@@ -1,11 +1,12 @@
 package no.schmell.backend.services.common
 
 import no.schmell.backend.dtos.common.*
+import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskStatus
 import no.schmell.backend.repositories.auth.UserRepository
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionRepository
-import no.schmell.backend.repositories.tasks.TaskRepository
+import no.schmell.backend.repositories.crm.TaskRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -30,10 +31,10 @@ class StatisticsService(
             )
         }
 
-        val countByCategory: List<CountByCategory> = tasks.map { task ->
+        val countByCategory: List<CountByCategory> = TaskCategory.values().map { category ->
             CountByCategory(
-                task.category,
-                tasks.count { currentTask -> currentTask.category == task.category }
+                category,
+                tasks.count { task -> task.category == category }
             )
         }
 

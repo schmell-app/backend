@@ -1,6 +1,6 @@
-package no.schmell.backend.entities.tasks
+package no.schmell.backend.entities.crm
 
-import no.schmell.backend.dtos.tasks.TaskDto
+import no.schmell.backend.dtos.crm.TaskDto
 import no.schmell.backend.entities.auth.User
 import no.schmell.backend.entities.cms.Game
 import no.schmell.backend.lib.enums.TaskCategory

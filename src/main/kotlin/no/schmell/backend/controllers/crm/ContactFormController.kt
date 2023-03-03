@@ -17,10 +17,19 @@ class  ContactFormController(val contactFormService: ContactFormService) {
 
     @GetMapping("")
     fun getContactForms(
-        @RequestParam(value = "type", required = false) type: ContactType? = null,
+        @RequestParam(value = "type", required = false) type: String? = null,
         @RequestParam(value = "email", required = false) email: String? = null,
-        @RequestParam(value = "acceptedTerms", required = false) acceptedTerms: Boolean? = null) =
-        contactFormService.getAll(ContactFormFilters(type, email, acceptedTerms))
+        @RequestParam(value = "acceptedTerms", required = false) acceptedTerms: Boolean? = null,
+        @RequestParam(value = "page", required = false, defaultValue = "1") page: String = "1",
+        @RequestParam(value = "pageSize", required = false, defaultValue = "10") pageSize: String = "10"
+    ) =
+        contactFormService.getAll(
+            ContactFormFilters(type?.split("+")?.map { ContactType.valueOf(it) },
+                email, acceptedTerms,
+                page.toInt(),
+                pageSize.toInt()
+            )
+        )
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
