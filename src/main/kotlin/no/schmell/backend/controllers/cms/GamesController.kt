@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/v2/cms/game")
-@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class GamesController(val gamesService: GamesService) {
 
 

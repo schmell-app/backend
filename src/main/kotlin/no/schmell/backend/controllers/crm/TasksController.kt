@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/v2/crm/tasks")
-@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class TasksController(val tasksService: TasksService) {
 
     @GetMapping("/{id}/")

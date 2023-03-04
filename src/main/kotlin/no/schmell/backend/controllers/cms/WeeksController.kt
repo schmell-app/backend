@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/v2/cms/week")
-@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no"])
+@CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class WeeksController(val weeksService: WeeksService) {
 
     @GetMapping("/{id}/")
