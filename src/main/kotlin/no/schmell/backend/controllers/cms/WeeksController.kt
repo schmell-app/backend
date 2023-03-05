@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/v2/cms/week")
+@RequestMapping("cms/week")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class WeeksController(val weeksService: WeeksService) {
 
@@ -16,7 +16,7 @@ class WeeksController(val weeksService: WeeksService) {
     @ResponseStatus(HttpStatus.OK)
     fun getWeek(@PathVariable("id") id: String): WeekDto = weeksService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     fun getWeeks(
         @RequestParam(value = "relatedGame", required = false) relatedGame: String?,
@@ -24,7 +24,7 @@ class WeeksController(val weeksService: WeeksService) {
     ): List<WeekDto> =
         weeksService.getAll(WeekFilters(relatedGame?.toInt(), weekNumber?.toInt()))
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createWeek(@RequestBody(required = true) dto: CreateWeekDto): WeekDto =
         weeksService.create(dto)

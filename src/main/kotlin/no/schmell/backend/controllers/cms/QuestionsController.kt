@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/v2/cms/question")
+@RequestMapping("cms/question")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class QuestionsController(val questionsService: QuestionsService) {
 
@@ -16,7 +16,7 @@ class QuestionsController(val questionsService: QuestionsService) {
     fun getQuestion(@PathVariable("id") id: String): QuestionDto =
         questionsService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     fun getQuestions(
         @RequestParam(value = "relatedWeek", required = false) relatedWeek: String?,
         @RequestParam(value = "sort", required = false) sort: String?,
@@ -24,7 +24,7 @@ class QuestionsController(val questionsService: QuestionsService) {
         ): List<QuestionDto> =
         questionsService.getAll(QuestionFilter(relatedWeek?.toInt(), sort, apiFunction))
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createQuestion(@RequestBody(required = true) dto: CreateQuestionDto): QuestionDto =
         questionsService.create(dto)

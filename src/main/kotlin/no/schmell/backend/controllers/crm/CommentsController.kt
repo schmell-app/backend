@@ -8,19 +8,19 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/v2/crm/tasks/comment")
+@RequestMapping("crm/tasks/comment")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class CommentsController(val commentsService: CommentsService) {
 
     @GetMapping("/{id}/")
     fun getComment(@PathVariable("id") id: String): CommentDto = commentsService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     fun getComments(
         @RequestParam(value = "relatedTask", required = false) relatedTask: String?): List<CommentDto> =
         commentsService.getAll(CommentFilters(relatedTask?.toInt()))
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createComment(@RequestBody(required = true) dto: CreateCommentDto): CommentDto = commentsService.create(dto)
 

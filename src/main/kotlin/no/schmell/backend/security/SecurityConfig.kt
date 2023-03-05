@@ -3,6 +3,7 @@ package no.schmell.backend.security
 import mu.KLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -35,6 +36,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
+            .mvcMatchers(HttpMethod.POST, "/v2/crm/contact/").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2ResourceServer().jwt()

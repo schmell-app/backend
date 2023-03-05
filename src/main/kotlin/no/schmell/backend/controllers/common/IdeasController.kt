@@ -9,20 +9,20 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/v2/common/idea")
+@RequestMapping("common/idea")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class IdeasController(val ideasService: IdeasService) {
 
     @GetMapping("/{id}/")
     fun getIdea(@PathVariable("id") id: String): IdeaDto = ideasService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     fun getIdeas(
         @RequestParam(value = "category", required = false) category: IdeaCategory? = null,
         @RequestParam(value = "createdBy", required = false) createdBy: Int? = null): List<IdeaDto> =
         ideasService.getAll(IdeaFilters(category, createdBy))
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createIdea(@RequestBody dto: CreateIdeaDto): IdeaDto = ideasService.create(dto)
 

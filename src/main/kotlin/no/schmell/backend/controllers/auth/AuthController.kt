@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/v2/users")
+@RequestMapping("users")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class AuthController(val authService: AuthService) {
 
@@ -16,7 +16,7 @@ class AuthController(val authService: AuthService) {
     @ResponseStatus(HttpStatus.OK)
     fun getUser(@PathVariable("id") id: String): UserDto = authService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     fun getUsers(): List<UserDto> = authService.getAll()
 
@@ -26,7 +26,7 @@ class AuthController(val authService: AuthService) {
         @RequestParam(value = "auth0Id", required = true) auth0Id: String)
     : UserDto = authService.getUserByAuth0Id(auth0Id)
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createUser(@RequestBody dto: UserDto): UserDto = authService.create(dto)
 

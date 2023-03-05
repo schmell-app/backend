@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @RestController
-@RequestMapping("/v2/crm/tasks")
+@RequestMapping("crm/tasks")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class TasksController(val tasksService: TasksService) {
 
@@ -19,7 +19,7 @@ class TasksController(val tasksService: TasksService) {
     @ResponseStatus(HttpStatus.OK)
     fun getTask(@PathVariable("id") id: String): TaskDto = tasksService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     fun getTasks(
         @RequestParam(value = "status", required = false) status: String?,
@@ -47,7 +47,7 @@ class TasksController(val tasksService: TasksService) {
 
     }
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createTask(@RequestBody(required = true) dto: CreateTaskDto): TaskDto = tasksService.create(dto)
 

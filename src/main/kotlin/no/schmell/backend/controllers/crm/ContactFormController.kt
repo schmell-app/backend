@@ -8,14 +8,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/v2/crm/contact")
+@RequestMapping("crm/contact")
 @CrossOrigin(origins = ["http://localhost:3000", "https://admin.dev.schmell.no", "https://admin.schmell.no"])
 class  ContactFormController(val contactFormService: ContactFormService) {
 
     @GetMapping("/{id}/")
     fun getContactForm(@PathVariable("id") id: String) = contactFormService.getById(id.toInt())
 
-    @GetMapping("")
+    @GetMapping("/")
     fun getContactForms(
         @RequestParam(value = "type", required = false) type: String? = null,
         @RequestParam(value = "email", required = false) email: String? = null,
@@ -31,7 +31,7 @@ class  ContactFormController(val contactFormService: ContactFormService) {
             )
         )
 
-    @PostMapping("")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createContactForm(@RequestBody dto: CreateContactForm) = contactFormService.create(dto)
 
