@@ -36,7 +36,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
-            .mvcMatchers(HttpMethod.POST, "/v2/crm/contact/").permitAll()
+            .mvcMatchers(HttpMethod.POST, "/crm/contact/").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2ResourceServer().jwt()
