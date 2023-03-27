@@ -47,7 +47,8 @@ class GamesService(
             dto.status ?: GameStatus.DEVELOPMENT,
             null,
         null,
-            null
+            null,
+            dto.isFamilyFriendly
         )
         return gameRepository.save(game).toGameDto(filesService)
     }
@@ -63,7 +64,8 @@ class GamesService(
             dto.status ?: gameToUpdate.status,
             gameToUpdate.logo,
             gameToUpdate.weeks,
-            gameToUpdate.questions
+            gameToUpdate.questions,
+            gameToUpdate.isFamilyFriendly
         )
         return gameRepository.save(updatedGame).toGameDto(filesService)
     }
@@ -88,7 +90,8 @@ class GamesService(
                 game.status,
                 uploadedFile?.fileName,
                 game.weeks,
-                game.questions
+                game.questions,
+                game.isFamilyFriendly,
             )).toGameDto(filesService)
 
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)

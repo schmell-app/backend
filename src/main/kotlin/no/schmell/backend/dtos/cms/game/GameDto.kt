@@ -10,13 +10,15 @@ data class GameDto(
     val lastUpdated : LocalDateTime,
     val status : GameStatus,
     val logo : String?,
-    val logoUrl: String?
+    val logoUrl: String?,
+    val isFamilyFriendly: Boolean
 )
 
 data class CreateGameDto(
     val name: String,
     val description: String,
     val status: GameStatus?,
+    val isFamilyFriendly: Boolean
 )
 
 data class UpdateGameDto(

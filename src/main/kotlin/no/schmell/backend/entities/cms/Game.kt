@@ -34,7 +34,10 @@ class Game(
     val weeks: List<Week>?,
 
     @OneToMany(mappedBy = "relatedGame", cascade = [CascadeType.REMOVE])
-    val questions: List<Question>?
+    val questions: List<Question>?,
+
+    @Column(name ="is_family_friendly", nullable = false, columnDefinition = "boolean default false")
+    val isFamilyFriendly: Boolean
 ){
     fun toGameDto(filesService: FilesService): GameDto {
         return this.let {
@@ -45,7 +48,8 @@ class Game(
                 it.lastUpdated,
                 it.status,
                 it.logo,
-                it.logo?.let { logo -> filesService.generatePresignedUrl("schmell-files", logo) }
+                it.logo?.let { logo -> filesService.generatePresignedUrl("schmell-files", logo) },
+                it.isFamilyFriendly
             )
         }
     }
