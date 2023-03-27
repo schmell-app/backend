@@ -24,6 +24,7 @@ data class CreateGameDto(
 data class UpdateGameDto(
     val description: String?,
     val status: GameStatus?,
+    val isFamilyFriendly: Boolean?
 )
 
 data class SimpleGameDto(

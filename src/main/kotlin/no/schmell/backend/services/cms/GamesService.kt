@@ -65,7 +65,7 @@ class GamesService(
             gameToUpdate.logo,
             gameToUpdate.weeks,
             gameToUpdate.questions,
-            gameToUpdate.isFamilyFriendly
+            dto.isFamilyFriendly ?: gameToUpdate.isFamilyFriendly
         )
         return gameRepository.save(updatedGame).toGameDto(filesService)
     }
