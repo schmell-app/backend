@@ -76,7 +76,7 @@ class QuestionsService(
             )
         })
 
-        gamesService.update(savedQuestions.first().relatedGame.id!!, UpdateGameDto(null, null))
+        gamesService.update(savedQuestions.first().relatedGame.id!!, UpdateGameDto(null, null, null))
         return savedQuestions.map { question -> question.toQuestionDto(filesService) }
     }
 
@@ -89,7 +89,7 @@ class QuestionsService(
         val relatedWeek = weekRepository.findByIdOrNull(dto.relatedWeek) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val relatedGame = gameRepository.findByIdOrNull(dto.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
-        gamesService.update(relatedGame.id!!, UpdateGameDto(null, null))
+        gamesService.update(relatedGame.id!!, UpdateGameDto(null, null, null))
 
         var relatedFunction: QuestionFunction? = null
 
@@ -154,7 +154,7 @@ class QuestionsService(
             questionToUpdate.relatedGame
         )
 
-        gamesService.update(questionToUpdate.relatedGame.id!!, UpdateGameDto(null, null))
+        gamesService.update(questionToUpdate.relatedGame.id!!, UpdateGameDto(null, null, null))
         return questionRepository.save(updatedQuestion).toQuestionDto(filesService)
     }
 
