@@ -30,8 +30,8 @@ class Question(
     @JoinColumn(name = "question_function_id", nullable = true)
     val function : QuestionFunction?,
 
-    @Column(name = "punishment", nullable = false)
-    val punishment : Int,
+    @Column(name = "punishment", nullable = true)
+    val punishment : Int?,
 
     @Column(name="question_picture", nullable = true)
     val questionPicture: String?,
