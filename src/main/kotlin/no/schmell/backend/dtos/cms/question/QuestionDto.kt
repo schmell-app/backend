@@ -7,7 +7,7 @@ data class QuestionDto(
     val questionDescription: String,
     val phase: Int,
     val function: QuestionFunctionDto?,
-    val punishment: Int,
+    val punishment: Int?,
     val questionPicture: String?,
     val relatedGame: Int,
     val questionPictureUrl: String?
@@ -19,7 +19,7 @@ data class CreateQuestionDto(
     val questionDescription: String,
     val phase: Int,
     val function: CreateQuestionFunctionDto?,
-    val punishment: Int,
+    val punishment: Int?,
     val relatedGame: Int
 )
 

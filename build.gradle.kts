@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.6.13-SNAPSHOT"
+	id("org.springframework.boot") version "2.5.6"
 	id("io.spring.dependency-management") version "1.0.14.RELEASE"
 	kotlin("jvm") version "1.6.21"
 	kotlin("plugin.spring") version "1.6.21"
@@ -33,7 +33,7 @@ dependencies {
 	implementation("org.projectlombok:lombok")
 
 	//Logging
-	implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
 	//Other
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -48,12 +48,14 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
 	//AWS
-	implementation("com.amazonaws:aws-java-sdk-s3:1.12.382")
+	implementation("com.amazonaws:aws-java-sdk-s3:1.12.429")
 
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.security:spring-security-oauth2-resource-server")
 	implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("org.springframework.security:spring-security-config")
+
+	implementation("org.flywaydb:flyway-core:7.15.0")
 
 	//DB
 	//runtimeOnly("com.h2database:h2")
