@@ -30,3 +30,8 @@ data class UpdateQuestionDto(
     val function: UpdateQuestionFunction?,
     val punishment: Int?
 )
+
+data class PlayQuestionsResponse(
+    val uneditedQuestions: List<QuestionDto>,
+    val editedQuestions: List<QuestionDto>
+)

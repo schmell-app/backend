@@ -2,12 +2,9 @@ package no.schmell.backend.services.cms
 
 import mu.KLogging
 import no.schmell.backend.dtos.cms.game.UpdateGameDto
-import no.schmell.backend.dtos.cms.question.CreateQuestionDto
+import no.schmell.backend.dtos.cms.question.*
 import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
-import no.schmell.backend.dtos.cms.question.QuestionDto
-import no.schmell.backend.dtos.cms.question.QuestionFilter
-import no.schmell.backend.dtos.cms.question.UpdateQuestionDto
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
 import no.schmell.backend.repositories.cms.GameRepository
@@ -228,5 +225,21 @@ class QuestionsService(
                 question.relatedGame,
             )).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    }
+
+    fun getQuestionsForPlay(dto: PlayQuestionParams): PlayQuestionsResponse {
+        val questions = this.getAll(
+            QuestionFilter(
+                dto.relatedWeek,
+                "PHASE_ASC",
+                "RANDOMIZE"
+            )
+        )
+        val questionsWithPlayers = this.addPlayerToQuestions(dto.players, questions)
+
+        return PlayQuestionsResponse(
+            questions,
+            questionsWithPlayers
+        )
     }
 }

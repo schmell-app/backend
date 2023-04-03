@@ -24,6 +24,12 @@ class QuestionsController(val questionsService: QuestionsService) {
         ): List<QuestionDto> =
         questionsService.getAll(QuestionFilter(relatedWeek?.toInt(), sort, apiFunction))
 
+    @PostMapping("/play/")
+    fun getQuestionsForPlay(
+        @RequestBody(required = true) dto: PlayQuestionParams
+    ): PlayQuestionsResponse =
+        questionsService.getQuestionsForPlay(dto)
+
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     fun createQuestion(@RequestBody(required = true) dto: CreateQuestionDto): QuestionDto =
@@ -42,12 +48,6 @@ class QuestionsController(val questionsService: QuestionsService) {
     @DeleteMapping("/{id}/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteQuestion(@PathVariable("id", required = true ) id: String) = questionsService.delete(id.toInt())
-
-
-    @PostMapping("/add/player/")
-    @ResponseStatus(HttpStatus.OK)
-    fun addPlayer(@RequestBody(required = true) dto: AddPlayersParams): List<QuestionDto> =
-        questionsService.addPlayerToQuestions(dto.players, dto.questions)
 
     @PostMapping("/add/player/inGame/")
     @ResponseStatus(HttpStatus.OK)
