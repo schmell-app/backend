@@ -14,3 +14,7 @@ data class IdeaDto(
     val category : IdeaCategory,
     val createdBy : SimpleUserDto,
 )
+data class IdeaFilters(
+    val category: IdeaCategory?,
+    val createdBy: Int?
+)
