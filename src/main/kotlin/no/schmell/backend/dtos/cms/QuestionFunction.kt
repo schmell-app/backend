@@ -1,4 +1,4 @@
-package no.schmell.backend.dtos.cms.question
+package no.schmell.backend.dtos.cms
 
 data class QuestionFunctionDto(
     val id : Int?,

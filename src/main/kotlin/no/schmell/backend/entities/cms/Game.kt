@@ -1,7 +1,7 @@
 package no.schmell.backend.entities.cms
 
-import no.schmell.backend.dtos.cms.game.GameDto
-import no.schmell.backend.dtos.cms.game.SimpleGameDto
+import no.schmell.backend.dtos.cms.GameDto
+import no.schmell.backend.dtos.cms.SimpleGameDto
 import no.schmell.backend.lib.enums.GameStatus
 import no.schmell.backend.services.files.FilesService
 import java.time.LocalDateTime
@@ -29,9 +29,6 @@ class Game(
 
     @Column(name="logo", nullable = true)
     val logo: String?,
-
-    @OneToMany(mappedBy = "relatedGame", cascade = [CascadeType.REMOVE])
-    val weeks: List<Week>?,
 
     @OneToMany(mappedBy = "relatedGame", cascade = [CascadeType.REMOVE])
     val questions: List<Question>?,

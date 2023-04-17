@@ -1,9 +1,9 @@
 package no.schmell.backend.controllers.cms
 
-import no.schmell.backend.dtos.cms.game.CreateGameDto
-import no.schmell.backend.dtos.cms.game.GameDto
-import no.schmell.backend.dtos.cms.game.GameFilters
-import no.schmell.backend.dtos.cms.game.UpdateGameDto
+import no.schmell.backend.dtos.cms.CreateGameDto
+import no.schmell.backend.dtos.cms.GameDto
+import no.schmell.backend.dtos.cms.GameFilters
+import no.schmell.backend.dtos.cms.UpdateGameDto
 import no.schmell.backend.lib.enums.GameStatus
 import no.schmell.backend.services.cms.GamesService
 import org.springframework.http.HttpStatus

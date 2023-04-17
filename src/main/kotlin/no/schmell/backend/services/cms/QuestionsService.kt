@@ -1,15 +1,13 @@
 package no.schmell.backend.services.cms
 
 import mu.KLogging
-import no.schmell.backend.dtos.cms.game.UpdateGameDto
-import no.schmell.backend.dtos.cms.question.*
+import no.schmell.backend.dtos.cms.*
 import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionFunctionRepository
-import no.schmell.backend.repositories.cms.WeekRepository
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -20,11 +18,11 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class QuestionsService(
     private val questionRepository: QuestionRepository,
-    val weekRepository: WeekRepository,
-    val gameRepository: GameRepository,
     val questionFunctionRepository: QuestionFunctionRepository,
+    val gameRepository: GameRepository,
     val filesService: FilesService,
     val gamesService: GamesService,
+    val questionTypeService: QuestionTypeService,
 ) {
 
     companion object : KLogging()
@@ -32,7 +30,7 @@ class QuestionsService(
     fun getAll(filter: QuestionFilter): List<QuestionDto> {
         var questions = questionRepository.findAll()
 
-        if (filter.relatedWeek != null) questions = questions.filter { it.relatedWeek.id == filter.relatedWeek }
+        if (filter.weekNumber != null) questions = questions.filter { it.activeWeeks.contains(filter.weekNumber.toString()) }
 
         if (filter.apiFunction == "RANDOMIZE") {
             logger.info { "RANDOMIZE triggered" }
@@ -48,8 +46,8 @@ class QuestionsService(
 
     fun createSeveral(dto: List<CreateQuestionDto>): List<QuestionDto> {
         val savedQuestions = questionRepository.saveAll(dto.map {
-            val relatedWeek = weekRepository.findByIdOrNull(it.relatedWeek) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
             val relatedGame = gameRepository.findByIdOrNull(it.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+            val relatedQuestionType = questionTypeService.getById(it.relatedQuestionType)
             var relatedFunction: QuestionFunction? = null
 
             it.function?.let { questionFunction -> relatedFunction = questionFunctionRepository.save(QuestionFunction(
@@ -62,18 +60,20 @@ class QuestionsService(
             )) }
             Question(
                 null,
-                relatedWeek,
+                it.activeWeeks.joinToString { "," },
                 it.type,
                 it.questionDescription,
                 it.phase,
                 relatedFunction,
                 it.punishment,
                 null,
-                relatedGame
+                relatedGame,
+                relatedQuestionType
             )
         })
 
-        gamesService.update(savedQuestions.first().relatedGame.id!!, UpdateGameDto(null, null, null))
+        gamesService.update(savedQuestions.first().relatedGame.id!!,
+            UpdateGameDto(null, null, null))
         return savedQuestions.map { question -> question.toQuestionDto(filesService) }
     }
 
@@ -83,14 +83,15 @@ class QuestionsService(
     }
 
     fun create(dto: CreateQuestionDto): QuestionDto {
-        val relatedWeek = weekRepository.findByIdOrNull(dto.relatedWeek) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val relatedGame = gameRepository.findByIdOrNull(dto.relatedGame) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val relatedQuestionType = questionTypeService.getById(dto.relatedQuestionType)
 
         gamesService.update(relatedGame.id!!, UpdateGameDto(null, null, null))
 
         var relatedFunction: QuestionFunction? = null
 
-        dto.function?.let { it -> relatedFunction = questionFunctionRepository.save(QuestionFunction(
+        dto.function?.let {
+            relatedFunction = questionFunctionRepository.save(QuestionFunction(
             null,
             it.timer,
             it.answer,
@@ -101,19 +102,24 @@ class QuestionsService(
 
         return questionRepository.save(Question(
             null,
-            relatedWeek,
+            dto.activeWeeks.joinToString { "," },
             dto.type,
             dto.questionDescription,
             dto.phase,
             relatedFunction,
             dto.punishment,
             null,
-            relatedGame
+            relatedGame,
+            relatedQuestionType
         )).toQuestionDto(filesService)
     }
 
     fun update(id: Int, dto: UpdateQuestionDto): QuestionDto {
         val questionToUpdate = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        val questionType = if (dto.relatedQuestionType != questionToUpdate.questionType.id)
+            questionTypeService.getById(dto.relatedQuestionType)
+        else questionToUpdate.questionType
 
         var relatedFunction: QuestionFunction? = null
         if (questionToUpdate.function == null) {
@@ -141,21 +147,22 @@ class QuestionsService(
 
         val updatedQuestion = Question(
             questionToUpdate.id,
-            questionToUpdate.relatedWeek,
+            dto.activeWeeks?.joinToString { "," } ?: questionToUpdate.activeWeeks,
             dto.type ?: questionToUpdate.type,
             dto.questionDescription ?: questionToUpdate.questionDescription,
             dto.phase ?: questionToUpdate.phase,
             relatedFunction ?: questionToUpdate.function,
             dto.punishment ?: questionToUpdate.punishment,
             questionToUpdate.questionPicture,
-            questionToUpdate.relatedGame
+            questionToUpdate.relatedGame,
+            questionType
         )
 
         gamesService.update(questionToUpdate.relatedGame.id!!, UpdateGameDto(null, null, null))
         return questionRepository.save(updatedQuestion).toQuestionDto(filesService)
     }
 
-    fun addPlayerToQuestions(players: List<String>, questions: List<QuestionDto>): List<QuestionDto> {
+    private fun addPlayersToQuestions(players: List<String>, questions: List<QuestionDto>): List<QuestionDto> {
         val updatedQuestions : MutableList<QuestionDto> = mutableListOf()
 
         try {
@@ -165,7 +172,7 @@ class QuestionsService(
                 updatedQuestions.add(
                     QuestionDto(
                         question.id,
-                        question.relatedWeek,
+                        question.activeWeeks,
                         question.type,
                         updatedQuestionDescription,
                         question.phase,
@@ -173,7 +180,8 @@ class QuestionsService(
                         question.punishment,
                         question.questionPicture,
                         question.relatedGame,
-                        question.questionPicture?.let { file -> filesService.generatePresignedUrl("schmell-files", file) }
+                        question.questionPicture?.let { file -> filesService.generatePresignedUrl("schmell-files", file)},
+                        question.questionType
                     )
                 )
             }
@@ -196,7 +204,7 @@ class QuestionsService(
         val secondPartOfQuestions = uneditedQuestions.subList(currentIndex + 1, editedQuestions.size)
         logger.info { secondPartOfQuestions }
 
-        val editedSecondPartOfQuestions = addPlayerToQuestions(players, secondPartOfQuestions)
+        val editedSecondPartOfQuestions = addPlayersToQuestions(players, secondPartOfQuestions)
 
         return firstPartOfQuestions + editedSecondPartOfQuestions
     }
@@ -215,7 +223,7 @@ class QuestionsService(
 
             questionRepository.save(Question(
                 question.id,
-                question.relatedWeek,
+                question.activeWeeks,
                 question.type,
                 question.questionDescription,
                 question.phase,
@@ -223,21 +231,22 @@ class QuestionsService(
                 question.punishment,
                 uploadedFile?.fileName,
                 question.relatedGame,
+                question.questionType
             )).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
-    fun getQuestionsForPlay(dto: PlayQuestionParams): PlayQuestionsResponse {
+    fun startGame(dto: GamePlayParams): GamePlayResponse {
         val questions = this.getAll(
             QuestionFilter(
-                dto.relatedWeek,
+                dto.weekNumber,
                 "PHASE_ASC",
                 "RANDOMIZE"
             )
         )
-        val questionsWithPlayers = this.addPlayerToQuestions(dto.players, questions)
+        val questionsWithPlayers = this.addPlayersToQuestions(dto.players, questions)
 
-        return PlayQuestionsResponse(
+        return GamePlayResponse(
             questions,
             questionsWithPlayers
         )

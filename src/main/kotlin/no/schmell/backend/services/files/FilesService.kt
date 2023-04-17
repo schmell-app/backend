@@ -5,7 +5,7 @@ import com.amazonaws.HttpMethod
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.PutObjectRequest
 import mu.KLogging
-import no.schmell.backend.dtos.files.FileDto
+import no.schmell.backend.dtos.files.File
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -30,15 +30,15 @@ class FilesService(val amazonS3Client: AmazonS3) {
         return file
     }
 
-    fun saveFile(multipartFile: MultipartFile, s3BucketName: String, directoryName: String): FileDto? {
-        var fileDto: FileDto? = null
+    fun saveFile(multipartFile: MultipartFile, s3BucketName: String, directoryName: String): no.schmell.backend.dtos.files.File? {
+        var fileDto: no.schmell.backend.dtos.files.File? = null
         try {
             val file: File = convertFromMultipartToFile(multipartFile)
             logger.info { "Uploading file with name {${file.name}}" }
             val putObjectRequest = PutObjectRequest(s3BucketName, "$directoryName/${file.name}", file)
             amazonS3Client.putObject(putObjectRequest)
             Files.delete(file.toPath())
-            fileDto = FileDto(
+            fileDto = no.schmell.backend.dtos.files.File(
                 "$directoryName/${file.name}",
                 amazonS3Client.getUrl(s3BucketName, "$directoryName/${file.name}").toString(),
             )

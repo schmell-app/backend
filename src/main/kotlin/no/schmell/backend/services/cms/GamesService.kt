@@ -3,10 +3,6 @@ package no.schmell.backend.services.cms
 import mu.KLogging
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.dtos.cms.*
-import no.schmell.backend.dtos.cms.game.CreateGameDto
-import no.schmell.backend.dtos.cms.game.GameDto
-import no.schmell.backend.dtos.cms.game.GameFilters
-import no.schmell.backend.dtos.cms.game.UpdateGameDto
 import no.schmell.backend.entities.cms.Game
 import no.schmell.backend.lib.enums.GameStatus
 import no.schmell.backend.services.files.FilesService
@@ -47,7 +43,6 @@ class GamesService(
             dto.status ?: GameStatus.DEVELOPMENT,
             null,
         null,
-            null,
             dto.isFamilyFriendly
         )
         return gameRepository.save(game).toGameDto(filesService)
@@ -63,7 +58,6 @@ class GamesService(
             LocalDateTime.now(),
             dto.status ?: gameToUpdate.status,
             gameToUpdate.logo,
-            gameToUpdate.weeks,
             gameToUpdate.questions,
             dto.isFamilyFriendly ?: gameToUpdate.isFamilyFriendly
         )
@@ -89,7 +83,6 @@ class GamesService(
                 game.lastUpdated,
                 game.status,
                 uploadedFile?.fileName,
-                game.weeks,
                 game.questions,
                 game.isFamilyFriendly,
             )).toGameDto(filesService)
