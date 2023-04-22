@@ -1,7 +1,7 @@
 package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.QuestionDto
-import no.schmell.backend.lib.defaults.defaultActiveWeeks
+import no.schmell.backend.lib.defaults.defaultActiveWeeksSql
 import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
@@ -14,7 +14,7 @@ class Question(
     val id : Int?,
 
     @Column(name = "active_weeks", nullable = false,
-        columnDefinition = "varchar(255) default $defaultActiveWeeks"
+        columnDefinition = "varchar(255) default $defaultActiveWeeksSql"
     )
     val activeWeeks : String?,
 
