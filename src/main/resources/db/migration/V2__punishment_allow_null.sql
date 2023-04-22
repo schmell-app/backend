@@ -1,1 +1,0 @@
-ALTER TABLE question ALTER COLUMN punishment DROP NOT NULL;

@@ -1,7 +1,7 @@
 package no.schmell.backend.dtos.crm
 
 import no.schmell.backend.dtos.auth.SimpleUserDto
-import no.schmell.backend.dtos.cms.game.SimpleGameDto
+import no.schmell.backend.dtos.cms.SimpleGameDto
 import no.schmell.backend.lib.enums.TaskCategory
 import no.schmell.backend.lib.enums.TaskPriority
 import no.schmell.backend.lib.enums.TaskStatus
@@ -42,4 +42,15 @@ data class UpdateTaskDto(
     val status: TaskStatus?,
     val deadline: LocalDateTime?,
     val relatedGame: Int?
+)
+
+data class TaskFilters(
+    val priority: List<TaskPriority>?,
+    val status: List<TaskStatus>?,
+    val category: List<TaskCategory>?,
+    val responsibleUser: Int?,
+    val sort: String?,
+    val toDate: LocalDateTime?,
+    val page: Int,
+    val pageSize: Int,
 )

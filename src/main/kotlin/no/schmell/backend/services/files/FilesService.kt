@@ -21,7 +21,7 @@ class FilesService(val amazonS3Client: AmazonS3) {
     companion object: KLogging()
 
     private fun convertFromMultipartToFile(multipartFile: MultipartFile): File {
-        val file = File(multipartFile.getOriginalFilename())
+        val file = File(multipartFile.originalFilename)
         try {
             FileOutputStream(file).use { outputStream -> outputStream.write(multipartFile.bytes) }
         } catch (e: IOException) {

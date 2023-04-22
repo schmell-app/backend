@@ -1,6 +1,6 @@
 package no.schmell.backend.entities.cms
 
-import no.schmell.backend.dtos.cms.question.QuestionFunctionDto
+import no.schmell.backend.dtos.cms.QuestionFunctionDto
 import javax.persistence.*
 
 @Entity

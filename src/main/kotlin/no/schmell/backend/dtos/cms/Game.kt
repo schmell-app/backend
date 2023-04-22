@@ -1,6 +1,8 @@
-package no.schmell.backend.dtos.cms.game
+package no.schmell.backend.dtos.cms
 
+import no.schmell.backend.entities.cms.Game
 import no.schmell.backend.lib.enums.GameStatus
+import org.springframework.web.client.HttpServerErrorException.InternalServerError
 import java.time.LocalDateTime
 
 data class GameDto(
@@ -27,6 +29,10 @@ data class UpdateGameDto(
     val isFamilyFriendly: Boolean?
 )
 
+data class GameFilters(
+    val name : String?,
+    val status : GameStatus?,
+)
 data class SimpleGameDto(
     val id: Int?,
     val name: String,

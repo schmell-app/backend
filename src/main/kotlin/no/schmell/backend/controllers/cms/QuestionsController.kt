@@ -1,7 +1,6 @@
 package no.schmell.backend.controllers.cms
 
 import no.schmell.backend.dtos.cms.*
-import no.schmell.backend.dtos.cms.question.*
 import no.schmell.backend.services.cms.QuestionsService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -18,17 +17,17 @@ class QuestionsController(val questionsService: QuestionsService) {
 
     @GetMapping("/")
     fun getQuestions(
-        @RequestParam(value = "relatedWeek", required = false) relatedWeek: String?,
+        @RequestParam(value = "weekNumbers", required = false) weekNumbers: String?,
         @RequestParam(value = "sort", required = false) sort: String?,
         @RequestParam(value = "apiFunction", required = false) apiFunction: String?,
         ): List<QuestionDto> =
-        questionsService.getAll(QuestionFilter(relatedWeek?.toInt(), sort, apiFunction))
+        questionsService.getAll(QuestionFilter(weekNumbers?.split(",")?.map { it.toInt() }, sort, apiFunction))
 
     @PostMapping("/play/")
-    fun getQuestionsForPlay(
-        @RequestBody(required = true) dto: PlayQuestionParams
-    ): PlayQuestionsResponse =
-        questionsService.getQuestionsForPlay(dto)
+    fun startGame(
+        @RequestBody(required = true) dto: GamePlayParams
+    ): GamePlayResponse =
+        questionsService.startGame(dto)
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)

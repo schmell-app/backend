@@ -16,3 +16,6 @@ data class CreateCommentDto(
     val writtenBy: Int,
     val relatedTask: Int
 )
+data class CommentFilters(
+    val relatedTask: Int?,
+)
