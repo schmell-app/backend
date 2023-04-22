@@ -1,6 +1,7 @@
 package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.QuestionDto
+import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
 
@@ -14,7 +15,7 @@ class Question(
     @Column(name = "active_weeks", nullable = false,
         columnDefinition = "varchar(255) default '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52'"
     )
-    val activeWeeks : String,
+    val activeWeeks : String?,
 
     @Column(name = "type", nullable = false)
     val type : String,
@@ -41,14 +42,17 @@ class Question(
 
     @ManyToOne(cascade = [CascadeType.DETACH])
     @JoinColumn(name = "question_type_id")
-    val questionType: QuestionType
+    val questionType: QuestionType,
 
+    @Column(name = "group_size", nullable = false, columnDefinition = "varchar default All")
+    @Enumerated(EnumType.STRING)
+    val groupSize: GroupSize
 ) {
     fun toQuestionDto(filesService: FilesService): QuestionDto {
         return this.let {
             QuestionDto(
                 it.id,
-                it.activeWeeks.split(",").map { weekString -> weekString.toInt() },
+                it.activeWeeks?.split(",")?.map { weekString -> weekString.toInt() },
                 it.type,
                 it.questionDescription,
                 it.phase,
@@ -57,7 +61,8 @@ class Question(
                 it.questionPicture,
                 it.relatedGame.id!!,
                 it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) },
-                it.questionType.toQuestionTypeDto()
+                it.questionType.toQuestionTypeDto(),
+                it.groupSize
             )
         }
     }

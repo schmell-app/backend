@@ -1,1 +1,0 @@
-ALTER TABLE question ALTER MODIFY punishment INT;

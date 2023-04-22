@@ -21,7 +21,7 @@ class QuestionsController(val questionsService: QuestionsService) {
         @RequestParam(value = "sort", required = false) sort: String?,
         @RequestParam(value = "apiFunction", required = false) apiFunction: String?,
         ): List<QuestionDto> =
-        questionsService.getAll(QuestionFilter(weekNumber?.toInt(), sort, apiFunction))
+        questionsService.getAll(QuestionFilter(weekNumber?.split(",")?.map { it.toInt() }, sort, apiFunction))
 
     @PostMapping("/play/")
     fun startGame(

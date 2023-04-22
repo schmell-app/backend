@@ -6,6 +6,7 @@ import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
+import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionFunctionRepository
 import no.schmell.backend.services.files.FilesService
@@ -30,7 +31,9 @@ class QuestionsService(
     fun getAll(filter: QuestionFilter): List<QuestionDto> {
         var questions = questionRepository.findAll()
 
-        if (filter.weekNumber != null) questions = questions.filter { it.activeWeeks.contains(filter.weekNumber.toString()) }
+        if (filter.weekNumbers != null) questions = questions.filter { question ->
+            filter.weekNumbers.all { question.activeWeeks?.contains(it.toString()) ?: false }
+        }
 
         if (filter.apiFunction == "RANDOMIZE") {
             logger.info { "RANDOMIZE triggered" }
@@ -60,7 +63,7 @@ class QuestionsService(
             )) }
             Question(
                 null,
-                it.activeWeeks.joinToString { "," },
+                it.activeWeeks?.joinToString { "," },
                 it.type,
                 it.questionDescription,
                 it.phase,
@@ -68,7 +71,8 @@ class QuestionsService(
                 it.punishment,
                 null,
                 relatedGame,
-                relatedQuestionType
+                relatedQuestionType,
+                it.groupSize ?: GroupSize.All
             )
         })
 
@@ -102,7 +106,7 @@ class QuestionsService(
 
         return questionRepository.save(Question(
             null,
-            dto.activeWeeks.joinToString { "," },
+            dto.activeWeeks?.joinToString { "," },
             dto.type,
             dto.questionDescription,
             dto.phase,
@@ -110,7 +114,8 @@ class QuestionsService(
             dto.punishment,
             null,
             relatedGame,
-            relatedQuestionType
+            relatedQuestionType,
+            dto.groupSize ?: GroupSize.All
         )).toQuestionDto(filesService)
     }
 
@@ -155,7 +160,8 @@ class QuestionsService(
             dto.punishment ?: questionToUpdate.punishment,
             questionToUpdate.questionPicture,
             questionToUpdate.relatedGame,
-            questionType
+            questionType,
+            dto.groupSize ?: questionToUpdate.groupSize
         )
 
         gamesService.update(questionToUpdate.relatedGame.id!!, UpdateGameDto(null, null, null))
@@ -181,7 +187,8 @@ class QuestionsService(
                         question.questionPicture,
                         question.relatedGame,
                         question.questionPicture?.let { file -> filesService.generatePresignedUrl("schmell-files", file)},
-                        question.questionType
+                        question.questionType,
+                        question.groupSize
                     )
                 )
             }
@@ -231,7 +238,8 @@ class QuestionsService(
                 question.punishment,
                 uploadedFile?.fileName,
                 question.relatedGame,
-                question.questionType
+                question.questionType,
+                question.groupSize
             )).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
@@ -239,12 +247,16 @@ class QuestionsService(
     fun startGame(dto: GamePlayParams): GamePlayResponse {
         val questions = this.getAll(
             QuestionFilter(
-                dto.weekNumber,
+                listOf(dto.weekNumber),
                 "PHASE_ASC",
                 "RANDOMIZE"
             )
         )
-        val questionsWithPlayers = this.addPlayersToQuestions(dto.players, questions)
+        val questionsWithPlayers = this.addPlayersToQuestions(dto.players, questions).filter { question ->
+            if (dto.players.size < 9) question.groupSize == GroupSize.S || question.groupSize == GroupSize.All
+            else if (dto.players.size < 17) question.groupSize == GroupSize.M || question.groupSize == GroupSize.All
+            else question.groupSize == GroupSize.L || question.groupSize == GroupSize.All
+        }
 
         return GamePlayResponse(
             questions,

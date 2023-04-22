@@ -1,8 +1,10 @@
 package no.schmell.backend.dtos.cms
 
+import no.schmell.backend.lib.enums.GroupSize
+
 data class QuestionDto(
     val id: Int?,
-    val activeWeeks: List<Int>,
+    val activeWeeks: List<Int>?,
     val type: String,
     val questionDescription: String,
     val phase: Int,
@@ -11,11 +13,12 @@ data class QuestionDto(
     val questionPicture: String?,
     val relatedGame: Int,
     val questionPictureUrl: String?,
-    val questionType: QuestionTypeDto
+    val questionType: QuestionTypeDto,
+    val groupSize: GroupSize
 )
 
 data class CreateQuestionDto(
-    var activeWeeks: List<Int>,
+    var activeWeeks: List<Int>?,
     val type: String,
     val questionDescription: String,
     val phase: Int,
@@ -23,6 +26,7 @@ data class CreateQuestionDto(
     val punishment: Int?,
     val relatedGame: Int,
     val relatedQuestionType: Int,
+    val groupSize: GroupSize?
 )
 
 data class UpdateQuestionDto(
@@ -32,7 +36,8 @@ data class UpdateQuestionDto(
     val function: UpdateQuestionFunction?,
     val punishment: Int?,
     val activeWeeks: List<Int>?,
-    val relatedQuestionType: Int
+    val relatedQuestionType: Int,
+    val groupSize: GroupSize?
 )
 
 data class GamePlayResponse(
@@ -45,7 +50,7 @@ data class GamePlayParams(
 )
 
 data class QuestionFilter(
-    val weekNumber: Int?,
+    val weekNumbers: List<Int>?,
     val sort: String?,
     val apiFunction: String?,
 )

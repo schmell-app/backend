@@ -39,3 +39,5 @@ out/
 application.yml
 .DS_Store
 summer-music-365700-e26e07e09eb9.json
+
+games/**
