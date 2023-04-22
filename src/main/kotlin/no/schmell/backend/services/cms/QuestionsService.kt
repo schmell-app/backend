@@ -6,6 +6,7 @@ import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
+import no.schmell.backend.lib.defaults.defaultActiveWeeks
 import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionFunctionRepository
@@ -63,8 +64,7 @@ class QuestionsService(
             )) }
             Question(
                 null,
-                it.activeWeeks?.joinToString { "," },
-                it.type,
+                it.activeWeeks?.joinToString(",") ?: defaultActiveWeeks,
                 it.questionDescription,
                 it.phase,
                 relatedFunction,
@@ -106,8 +106,7 @@ class QuestionsService(
 
         return questionRepository.save(Question(
             null,
-            dto.activeWeeks?.joinToString { "," },
-            dto.type,
+            dto.activeWeeks?.joinToString(",") ?: defaultActiveWeeks,
             dto.questionDescription,
             dto.phase,
             relatedFunction,
@@ -153,7 +152,6 @@ class QuestionsService(
         val updatedQuestion = Question(
             questionToUpdate.id,
             dto.activeWeeks?.joinToString { "," } ?: questionToUpdate.activeWeeks,
-            dto.type ?: questionToUpdate.type,
             dto.questionDescription ?: questionToUpdate.questionDescription,
             dto.phase ?: questionToUpdate.phase,
             relatedFunction ?: questionToUpdate.function,
@@ -179,7 +177,6 @@ class QuestionsService(
                     QuestionDto(
                         question.id,
                         question.activeWeeks,
-                        question.type,
                         updatedQuestionDescription,
                         question.phase,
                         question.function,
@@ -231,7 +228,6 @@ class QuestionsService(
             questionRepository.save(Question(
                 question.id,
                 question.activeWeeks,
-                question.type,
                 question.questionDescription,
                 question.phase,
                 question.function,

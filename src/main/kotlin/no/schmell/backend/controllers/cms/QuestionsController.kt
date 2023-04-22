@@ -17,11 +17,11 @@ class QuestionsController(val questionsService: QuestionsService) {
 
     @GetMapping("/")
     fun getQuestions(
-        @RequestParam(value = "weekNumber", required = false) weekNumber: String?,
+        @RequestParam(value = "weekNumbers", required = false) weekNumbers: String?,
         @RequestParam(value = "sort", required = false) sort: String?,
         @RequestParam(value = "apiFunction", required = false) apiFunction: String?,
         ): List<QuestionDto> =
-        questionsService.getAll(QuestionFilter(weekNumber?.split(",")?.map { it.toInt() }, sort, apiFunction))
+        questionsService.getAll(QuestionFilter(weekNumbers?.split(",")?.map { it.toInt() }, sort, apiFunction))
 
     @PostMapping("/play/")
     fun startGame(

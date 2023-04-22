@@ -5,7 +5,6 @@ import no.schmell.backend.lib.enums.GroupSize
 data class QuestionDto(
     val id: Int?,
     val activeWeeks: List<Int>?,
-    val type: String,
     val questionDescription: String,
     val phase: Int,
     val function: QuestionFunctionDto?,
@@ -19,7 +18,6 @@ data class QuestionDto(
 
 data class CreateQuestionDto(
     var activeWeeks: List<Int>?,
-    val type: String,
     val questionDescription: String,
     val phase: Int,
     val function: CreateQuestionFunctionDto?,
@@ -30,7 +28,6 @@ data class CreateQuestionDto(
 )
 
 data class UpdateQuestionDto(
-    val type: String?,
     val questionDescription: String?,
     val phase: Int?,
     val function: UpdateQuestionFunction?,
