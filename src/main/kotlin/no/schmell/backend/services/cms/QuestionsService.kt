@@ -30,10 +30,8 @@ class QuestionsService(
     companion object : KLogging()
 
     fun getAll(filter: QuestionFilter): List<QuestionDto> {
-        var questions = questionRepository.findAll()
+        var questions = questionRepository.findAllByRelatedGameId(filter.relatedGame)
 
-        if (filter.relatedGame != null) questions = questions.filter { question ->
-            question.relatedGame.id == filter.relatedGame }
         if (filter.weekNumbers != null) questions = questions.filter { question ->
             filter.weekNumbers.all { question.activeWeeks?.contains(it.toString()) ?: false }
         }
