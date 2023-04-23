@@ -42,11 +42,13 @@ data class GamePlayResponse(
     val editedQuestions: List<QuestionDto>
 )
 data class GamePlayParams(
+    val relatedGame: Int,
     val weekNumber: Int,
     val players: List<String>
 )
 
 data class QuestionFilter(
+    val relatedGame: Int?,
     val weekNumbers: List<Int>?,
     val sort: String?,
     val apiFunction: String?,

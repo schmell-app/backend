@@ -32,6 +32,8 @@ class QuestionsService(
     fun getAll(filter: QuestionFilter): List<QuestionDto> {
         var questions = questionRepository.findAll()
 
+        if (filter.relatedGame != null) questions = questions.filter { question ->
+            question.relatedGame.id == filter.relatedGame }
         if (filter.weekNumbers != null) questions = questions.filter { question ->
             filter.weekNumbers.all { question.activeWeeks?.contains(it.toString()) ?: false }
         }
@@ -245,6 +247,7 @@ class QuestionsService(
     fun startGame(dto: GamePlayParams): GamePlayResponse {
         val questions = this.getAll(
             QuestionFilter(
+                dto.relatedGame,
                 listOf(dto.weekNumber),
                 "PHASE_ASC",
                 "RANDOMIZE"
