@@ -16,7 +16,7 @@ class QuestionType (
     @Column(name = "hex_color", nullable = false)
     val hexColor : String,
 
-    @Column(name = "hint", nullable = false)
+    @Column(name = "hint", nullable = false, length = 2000)
     val hint : String,
 ) {
     fun toQuestionTypeDto(): QuestionTypeDto {
