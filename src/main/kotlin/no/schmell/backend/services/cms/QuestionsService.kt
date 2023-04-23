@@ -43,6 +43,8 @@ class QuestionsService(
 
         if (filter.sort == "PHASE_ASC") {
             questions = questions.sortedBy { it.phase }
+        } else {
+            questions = questions.sortedBy { it.id }
         }
 
         return questions.map { question -> question.toQuestionDto(filesService) }
@@ -151,7 +153,7 @@ class QuestionsService(
 
         val updatedQuestion = Question(
             questionToUpdate.id,
-            dto.activeWeeks?.joinToString { "," } ?: questionToUpdate.activeWeeks,
+            dto.activeWeeks?.joinToString(",") ?: questionToUpdate.activeWeeks,
             dto.questionDescription ?: questionToUpdate.questionDescription,
             dto.phase ?: questionToUpdate.phase,
             relatedFunction ?: questionToUpdate.function,
