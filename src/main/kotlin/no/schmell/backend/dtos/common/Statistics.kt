@@ -1,10 +1,7 @@
 package no.schmell.backend.dtos.common
 
 import no.schmell.backend.dtos.cms.SimpleGameDto
-import no.schmell.backend.lib.enums.MarketingProviders
-import no.schmell.backend.lib.enums.StatisticsUserView
-import no.schmell.backend.lib.enums.StatisticsView
-import no.schmell.backend.lib.enums.TaskCategory
+import no.schmell.backend.lib.enums.*
 
 data class StatisticsGeneralResponse(
     val dayStatistics: DayStatistics,
@@ -14,15 +11,35 @@ data class StatisticsGeneralResponse(
 )
 data class StatisticsOverviewResponse(
     val usersCount: UsersCount,
-    val gamePopularity: List<Pair<SimpleGameDto, Int>>,
-    val gameIncome: List<Pair<SimpleGameDto, Int>>,
-    val usageTimes: List<Pair<String, Int>>,
-    val marketing: List<Pair<MarketingProviders, Int>>
+    val gamePopularity: List<GamePopularityDto>,
+    val marketing: List<MarketingDto>,
+    val usageTimes: List<UsageTimesDto>,
+)
+
+data class GamePopularityDto(
+    val game: SimpleGameDto,
+    val count: Int,
+)
+
+data class MarketingDto(
+    val provider: MarketingProviders,
+    val count: Int,
+)
+
+data class UsageTimesDto(
+    val time: String,
+    val count: Int,
 )
 
 data class UsersCount(
-    val view: StatisticsUserView,
-    val count: List<Pair<Int, Int>>
+    val view: StatisticsView,
+    val grouping: StatisticsGroup,
+    val count: List<UsersCountDto>
+)
+
+data class UsersCountDto(
+    val countStamp: Int,
+    val count: Int,
 )
 
 data class DayStatistics(
@@ -58,7 +75,8 @@ data class CountByGame(
 )
 
 data class StatisticsFilter(
-    val users : StatisticsUserView,
+    val usersView: StatisticsView,
+    val usersGroup: StatisticsGroup,
     val popularity: StatisticsView,
-    val income : StatisticsView,
+    val usage : StatisticsView,
 )

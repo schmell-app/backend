@@ -25,7 +25,7 @@ interface GameSessionRepository : CrudRepository<GameSession, Int> {
     ): List<GameSession>
 
     @Query(
-        "SELECT count (g) FROM GameSession g WHERE g.createdAt BETWEEN :from AND :to"
+        "SELECT count (g) FROM GameSession g WHERE g.createdAt BETWEEN :from AND :to AND g.relatedGame = :relatedGame"
     )
     fun countAllInDateRangeWithGame(
         from: LocalDateTime,

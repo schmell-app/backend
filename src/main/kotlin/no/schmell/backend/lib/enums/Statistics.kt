@@ -1,12 +1,13 @@
 package no.schmell.backend.lib.enums
 
-enum class StatisticsUserView {
-    MonthWeek,
-    MonthDay,
-    YearMonth
+enum class StatisticsGroup {
+    Week,
+    Day,
+    Month
 }
 
 enum class StatisticsView {
     Month,
-    Year
+    Year,
+    Week,
 }

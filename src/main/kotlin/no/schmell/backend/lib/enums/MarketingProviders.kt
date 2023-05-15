@@ -1,7 +1,7 @@
 package no.schmell.backend.lib.enums
 
 enum class MarketingProviders {
-    Influencer,
+    Referral,
     Instagram,
     TikTok,
     SnapChat,
