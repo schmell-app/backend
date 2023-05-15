@@ -6,16 +6,19 @@ import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
+import no.schmell.backend.entities.common.GameSession
 import no.schmell.backend.lib.defaults.defaultActiveWeeks
 import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionFunctionRepository
+import no.schmell.backend.repositories.common.GameSessionRepository
 import no.schmell.backend.services.files.FilesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Service
 class QuestionsService(
@@ -25,6 +28,7 @@ class QuestionsService(
     val filesService: FilesService,
     val gamesService: GamesService,
     val questionTypeService: QuestionTypeService,
+    val gameSessionRepository: GameSessionRepository,
 ) {
 
     companion object : KLogging()
@@ -256,6 +260,13 @@ class QuestionsService(
             else if (dto.players.size < 17) question.groupSize == GroupSize.M || question.groupSize == GroupSize.All
             else question.groupSize == GroupSize.L || question.groupSize == GroupSize.All
         }
+        val relatedGame = gameRepository.findById(questions.first().relatedGame).orElse(null)
+
+        gameSessionRepository.save(GameSession(
+            null,
+            LocalDateTime.now(),
+            relatedGame,
+        ))
 
         return GamePlayResponse(
             questions,

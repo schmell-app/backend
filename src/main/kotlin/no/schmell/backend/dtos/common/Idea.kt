@@ -8,12 +8,14 @@ data class CreateIdeaDto(
     val category: IdeaCategory,
     val createdBy: Int
 )
+
 data class IdeaDto(
     val id : Int?,
     val ideaText : String,
     val category : IdeaCategory,
     val createdBy : SimpleUserDto,
 )
+
 
 data class IdeaFilters(
     val category: IdeaCategory?,
