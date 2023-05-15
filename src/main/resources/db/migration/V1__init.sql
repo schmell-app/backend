@@ -1,0 +1,1 @@
+-- Placeholder for initializing flyway
