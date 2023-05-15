@@ -260,7 +260,7 @@ class QuestionsService(
             else if (dto.players.size < 17) question.groupSize == GroupSize.M || question.groupSize == GroupSize.All
             else question.groupSize == GroupSize.L || question.groupSize == GroupSize.All
         }
-        val relatedGame = gameRepository.findById(questions.first().relatedGame).orElse(null)
+        val relatedGame = gameRepository.findById(dto.relatedGame).orElse(null)
 
         gameSessionRepository.save(GameSession(
             null,
