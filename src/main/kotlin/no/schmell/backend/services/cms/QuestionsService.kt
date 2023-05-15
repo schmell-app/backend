@@ -37,7 +37,10 @@ class QuestionsService(
         var questions = questionRepository.findAllByRelatedGameId(filter.relatedGame)
 
         if (filter.weekNumbers != null) questions = questions.filter { question ->
-            filter.weekNumbers.all { question.activeWeeks?.contains(it.toString()) ?: false }
+            filter.weekNumbers.any { it ->
+                val activeWeeksForQuestions = question.activeWeeks?.split(",")?.map { it.toInt() }
+                activeWeeksForQuestions?.contains(it) ?: false
+            }
         }
 
         if (filter.apiFunction == "RANDOMIZE") {
