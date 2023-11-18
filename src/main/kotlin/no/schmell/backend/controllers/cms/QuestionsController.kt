@@ -19,14 +19,18 @@ class QuestionsController(val questionsService: QuestionsService) {
     fun getQuestions(
         @RequestParam(value = "relatedGame", required = false) relatedGame: String?,
         @RequestParam(value = "weekNumbers", required = false) weekNumbers: String?,
-        @RequestParam(value = "sort", required = false) sort: String?,
-        @RequestParam(value = "apiFunction", required = false) apiFunction: String?,
-        ): List<QuestionDto> =
+        @RequestParam(value = "questionType", required = false) questionType: String?,
+        @RequestParam(value = "questionSearch", required = false) questionSearch: String?,
+        @RequestParam(value = "page", required = false, defaultValue = "1") page: String = "1",
+        @RequestParam(value = "pageSize", required = false, defaultValue = "10") pageSize: String = "10"
+        ): QuestionPaginatedResponse =
         questionsService.getAll(QuestionFilter(
             relatedGame?.toInt(),
             weekNumbers?.split(",")?.map { it.toInt() },
-            sort,
-            apiFunction
+            questionType?.toInt(),
+            questionSearch,
+            page.toInt(),
+            pageSize.toInt()
         ))
 
     @PostMapping("/play/")

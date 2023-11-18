@@ -2,8 +2,6 @@ package no.schmell.backend.services.cms
 
 import mu.KLogging
 import no.schmell.backend.dtos.cms.*
-import no.schmell.backend.repositories.cms.QuestionRepository
-import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
 import no.schmell.backend.entities.common.GameSession
@@ -11,8 +9,11 @@ import no.schmell.backend.lib.defaults.defaultActiveWeeks
 import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionFunctionRepository
+import no.schmell.backend.repositories.cms.QuestionRepository
 import no.schmell.backend.repositories.common.GameSessionRepository
 import no.schmell.backend.services.files.FilesService
+import no.schmell.backend.utils.switchOutQuestionStringWithPlayers
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -33,28 +34,27 @@ class QuestionsService(
 
     companion object : KLogging()
 
-    fun getAll(filter: QuestionFilter): List<QuestionDto> {
-        var questions = questionRepository.findAllByRelatedGameId(filter.relatedGame)
+    fun getAll(filter: QuestionFilter): QuestionPaginatedResponse {
+        val questions = questionRepository.findAllByFilters(
+                filter.relatedGame,
+                filter.questionType,
+                filter.questionSearch,
+                filter.weekNumbers,
+                PageRequest.of(filter.page - 1, filter.pageSize)
+        )
+        val total = questionRepository.countAllByFilters(
+                filter.relatedGame,
+                filter.questionType,
+                filter.questionSearch,
+                filter.weekNumbers
+        )
 
-        if (filter.weekNumbers != null) questions = questions.filter { question ->
-            filter.weekNumbers.any { it ->
-                val activeWeeksForQuestions = question.activeWeeks?.split(",")?.map { it.toInt() }
-                activeWeeksForQuestions?.contains(it) ?: false
-            }
-        }
-
-        if (filter.apiFunction == "RANDOMIZE") {
-            logger.info { "RANDOMIZE triggered" }
-            questions = questions.shuffled()
-        }
-
-        if (filter.sort == "PHASE_ASC") {
-            questions = questions.sortedBy { it.phase }
-        } else {
-            questions = questions.sortedBy { it.id }
-        }
-
-        return questions.map { question -> question.toQuestionDto(filesService) }
+        return QuestionPaginatedResponse(
+            questions = questions.map { it.toQuestionDto(filesService) },
+            total = total,
+            page = filter.page,
+            lastPage = (total / filter.pageSize) + 1
+        )
     }
 
     fun createSeveral(dto: List<CreateQuestionDto>): List<QuestionDto> {
@@ -250,14 +250,20 @@ class QuestionsService(
     }
 
     fun startGame(dto: GamePlayParams): GamePlayResponse {
-        val questions = this.getAll(
-            QuestionFilter(
-                dto.relatedGame,
-                listOf(dto.weekNumber),
-                "PHASE_ASC",
-                "RANDOMIZE"
-            )
-        )
+        var questionsToPlay = this.questionRepository.findAllByRelatedGameId(dto.relatedGame);
+
+        val weekNumbers = listOf(dto.weekNumber);
+        questionsToPlay = questionsToPlay.filter { question ->
+            weekNumbers.any { it ->
+                val activeWeeksForQuestions = question.activeWeeks?.split(",")?.map { it.toInt() }
+                activeWeeksForQuestions?.contains(it) ?: false
+            }
+        }
+        questionsToPlay = questionsToPlay.shuffled()
+        questionsToPlay = questionsToPlay.sortedBy { it.phase }
+
+        val questions = questionsToPlay.map { question -> question.toQuestionDto(filesService) }
+
         val questionsWithPlayers = this.addPlayersToQuestions(dto.players, questions).filter { question ->
             if (dto.players.size < 9) question.groupSize == GroupSize.S || question.groupSize == GroupSize.All
             else if (dto.players.size < 17) question.groupSize == GroupSize.M || question.groupSize == GroupSize.All

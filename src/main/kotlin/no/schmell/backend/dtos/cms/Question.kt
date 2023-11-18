@@ -16,6 +16,13 @@ data class QuestionDto(
     val groupSize: GroupSize
 )
 
+data class QuestionPaginatedResponse(
+    val questions: List<QuestionDto>,
+    val total: Int,
+    val page: Int,
+    val lastPage: Int
+)
+
 data class CreateQuestionDto(
     var activeWeeks: List<Int>?,
     val questionDescription: String,
@@ -50,8 +57,10 @@ data class GamePlayParams(
 data class QuestionFilter(
     val relatedGame: Int?,
     val weekNumbers: List<Int>?,
-    val sort: String?,
-    val apiFunction: String?,
+    val questionType: Int?,
+    val questionSearch: String?,
+    val page: Int,
+    val pageSize: Int
 )
 
 data class AddPlayersInGameParams(
