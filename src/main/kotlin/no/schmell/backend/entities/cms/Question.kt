@@ -44,7 +44,10 @@ class Question(
 
     @Column(name = "group_size", nullable = false, columnDefinition = "varchar(255) default 'All'")
     @Enumerated(EnumType.STRING)
-    val groupSize: GroupSize
+    val groupSize: GroupSize,
+
+    @Column(name = "dislikes_count", nullable = false, columnDefinition = "int default 0")
+    val dislikesCount: Int,
 ) {
     fun toQuestionDto(filesService: FilesService): QuestionDto {
         return this.let {
@@ -59,7 +62,8 @@ class Question(
                 it.relatedGame.id!!,
                 it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) },
                 it.questionType.toQuestionTypeDto(),
-                it.groupSize
+                it.groupSize,
+                it.dislikesCount
             )
         }
     }

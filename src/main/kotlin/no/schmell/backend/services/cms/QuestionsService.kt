@@ -81,7 +81,8 @@ class QuestionsService(
                 null,
                 relatedGame,
                 relatedQuestionType,
-                it.groupSize ?: GroupSize.All
+                it.groupSize ?: GroupSize.All,
+                0
             )
         })
 
@@ -123,8 +124,47 @@ class QuestionsService(
             null,
             relatedGame,
             relatedQuestionType,
-            dto.groupSize ?: GroupSize.All
+            dto.groupSize ?: GroupSize.All,
+            0
         )).toQuestionDto(filesService)
+    }
+
+    fun addDislike(id: Int): QuestionDto {
+        val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val updatedQuestion = Question(
+            question.id,
+            question.activeWeeks,
+            question.questionDescription,
+            question.phase,
+            question.function,
+            question.punishment,
+            question.questionPicture,
+            question.relatedGame,
+            question.questionType,
+            question.groupSize,
+            question.dislikesCount + 1
+        )
+
+        return questionRepository.save(updatedQuestion).toQuestionDto(filesService)
+    }
+
+    fun removeDislike(id: Int): QuestionDto {
+        val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val updatedQuestion = Question(
+            question.id,
+            question.activeWeeks,
+            question.questionDescription,
+            question.phase,
+            question.function,
+            question.punishment,
+            question.questionPicture,
+            question.relatedGame,
+            question.questionType,
+            question.groupSize,
+            if (question.dislikesCount > 0) question.dislikesCount - 1 else 0
+        )
+
+        return questionRepository.save(updatedQuestion).toQuestionDto(filesService)
     }
 
     fun update(id: Int, dto: UpdateQuestionDto): QuestionDto {
@@ -168,7 +208,8 @@ class QuestionsService(
             questionToUpdate.questionPicture,
             questionToUpdate.relatedGame,
             questionType,
-            dto.groupSize ?: questionToUpdate.groupSize
+            dto.groupSize ?: questionToUpdate.groupSize,
+            questionToUpdate.dislikesCount
         )
 
         gamesService.update(questionToUpdate.relatedGame.id!!, UpdateGameDto(null, null, null))
@@ -194,7 +235,8 @@ class QuestionsService(
                         question.relatedGame,
                         question.questionPicture?.let { file -> filesService.generatePresignedUrl("schmell-files", file)},
                         question.questionType,
-                        question.groupSize
+                        question.groupSize,
+                        question.dislikesCount
                     )
                 )
             }
@@ -244,15 +286,16 @@ class QuestionsService(
                 uploadedFile?.fileName,
                 question.relatedGame,
                 question.questionType,
-                question.groupSize
+                question.groupSize,
+                question.dislikesCount
             )).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
     fun startGame(dto: GamePlayParams): GamePlayResponse {
-        var questionsToPlay = this.questionRepository.findAllByRelatedGameId(dto.relatedGame);
+        var questionsToPlay = this.questionRepository.findAllByRelatedGameId(dto.relatedGame)
 
-        val weekNumbers = listOf(dto.weekNumber);
+        val weekNumbers = listOf(dto.weekNumber)
         questionsToPlay = questionsToPlay.filter { question ->
             weekNumbers.any { it ->
                 val activeWeeksForQuestions = question.activeWeeks?.split(",")?.map { it.toInt() }
