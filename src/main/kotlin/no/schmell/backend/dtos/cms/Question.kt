@@ -13,7 +13,8 @@ data class QuestionDto(
     val relatedGame: Int,
     val questionPictureUrl: String?,
     val questionType: QuestionTypeDto,
-    val groupSize: GroupSize
+    val groupSize: GroupSize,
+    val dislikesCount: Int,
 )
 
 data class QuestionPaginatedResponse(
@@ -41,7 +42,7 @@ data class UpdateQuestionDto(
     val punishment: Int?,
     val activeWeeks: List<Int>?,
     val relatedQuestionType: Int,
-    val groupSize: GroupSize?
+    val groupSize: GroupSize?,
 )
 
 data class GamePlayResponse(

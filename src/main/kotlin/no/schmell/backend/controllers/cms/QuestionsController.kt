@@ -68,4 +68,13 @@ class QuestionsController(val questionsService: QuestionsService) {
     fun addQuestionPicture(@PathVariable("id") id: String, @RequestBody file: MultipartFile): QuestionDto =
         questionsService.addQuestionPicture(id.toInt(), file)
 
+    @PutMapping("/{id}/dislike/add/")
+    @ResponseStatus(HttpStatus.OK)
+    fun addDislike(@PathVariable("id") id: String): QuestionDto =
+        questionsService.addDislike(id.toInt())
+
+    @PutMapping("/{id}/dislike/remove/")
+    @ResponseStatus(HttpStatus.OK)
+    fun removeDislike(@PathVariable("id") id: String): QuestionDto =
+        questionsService.removeDislike(id.toInt())
 }
