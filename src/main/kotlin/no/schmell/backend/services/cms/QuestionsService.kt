@@ -40,13 +40,17 @@ class QuestionsService(
                 filter.questionType,
                 filter.questionSearch,
                 filter.weekNumbers,
+                filter.hasDislikes,
+                filter.dislikesGreaterThan,
                 PageRequest.of(filter.page - 1, filter.pageSize)
         )
         val total = questionRepository.countAllByFilters(
                 filter.relatedGame,
                 filter.questionType,
                 filter.questionSearch,
-                filter.weekNumbers
+                filter.weekNumbers,
+                filter.hasDislikes,
+                filter.dislikesGreaterThan
         )
 
         return QuestionPaginatedResponse(

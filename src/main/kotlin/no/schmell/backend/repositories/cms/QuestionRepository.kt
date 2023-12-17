@@ -14,12 +14,16 @@ interface QuestionRepository : CrudRepository<Question, Int> {
             "AND ((:questionDescription) IS NULL OR q.questionDescription LIKE %:questionDescription%)" +
             "AND ((:relatedGame) IS NULL OR q.relatedGame.id = (:relatedGame))" +
             "AND ((:activeWeeks) IS NULL OR q.activeWeeks IN (:activeWeeks))" +
+            "AND ((:hasDislikes) IS NULL OR (:hasDislikes) = true AND q.dislikesCount > 0 OR (:hasDislikes) = false AND q.dislikesCount = 0)" +
+            "AND ((:dislikesGreaterThan) IS NULL OR q.dislikesCount > (:dislikesGreaterThan))" +
             "ORDER BY q.id ASC")
     fun findAllByFilters(
         relatedGame: Int?,
         questionType: Int?,
         questionDescription: String?,
         activeWeeks: List<Int>?,
+        hasDislikes: Boolean?,
+        dislikesGreaterThan: Int?,
         pageable: Pageable
     ): List<Question>
 
@@ -27,11 +31,15 @@ interface QuestionRepository : CrudRepository<Question, Int> {
             "((:questionType) IS NULL OR q.questionType.id = (:questionType))" +
             "AND ((:questionDescription) IS NULL OR q.questionDescription LIKE %:questionDescription%)" +
             "AND ((:relatedGame) IS NULL OR q.relatedGame.id = (:relatedGame))" +
-            "AND ((:activeWeeks) IS NULL OR q.activeWeeks IN (:activeWeeks))")
+            "AND ((:activeWeeks) IS NULL OR q.activeWeeks IN (:activeWeeks))" +
+            "AND ((:hasDislikes) IS NULL OR (:hasDislikes) = true AND q.dislikesCount > 0 OR (:hasDislikes) = false AND q.dislikesCount = 0)" +
+            "AND ((:dislikesGreaterThan) IS NULL OR q.dislikesCount > (:dislikesGreaterThan))")
     fun countAllByFilters(
         relatedGame: Int?,
         questionType: Int?,
         questionDescription: String?,
-        activeWeeks: List<Int>?
+        activeWeeks: List<Int>?,
+        hasDislikes: Boolean?,
+        dislikesGreaterThan: Int?
     ): Int
 }
