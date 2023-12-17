@@ -60,8 +60,10 @@ data class QuestionFilter(
     val weekNumbers: List<Int>?,
     val questionType: Int?,
     val questionSearch: String?,
+    val hasDislikes: Boolean?,
+    val dislikesGreaterThan: Int?,
     val page: Int,
-    val pageSize: Int
+    val pageSize: Int,
 )
 
 data class AddPlayersInGameParams(

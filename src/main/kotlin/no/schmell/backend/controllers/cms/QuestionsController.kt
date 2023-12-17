@@ -21,6 +21,8 @@ class QuestionsController(val questionsService: QuestionsService) {
         @RequestParam(value = "weekNumbers", required = false) weekNumbers: String?,
         @RequestParam(value = "questionType", required = false) questionType: String?,
         @RequestParam(value = "questionSearch", required = false) questionSearch: String?,
+        @RequestParam(value = "hasDislikes", required = false) hasDislikes: String?,
+        @RequestParam(value = "dislikesGreaterThan", required = false) dislikesGreaterThan: String?,
         @RequestParam(value = "page", required = false, defaultValue = "1") page: String = "1",
         @RequestParam(value = "pageSize", required = false, defaultValue = "10") pageSize: String = "10"
         ): QuestionPaginatedResponse =
@@ -29,6 +31,8 @@ class QuestionsController(val questionsService: QuestionsService) {
             weekNumbers?.split(",")?.map { it.toInt() },
             questionType?.toInt(),
             questionSearch,
+            hasDislikes?.toBoolean(),
+            dislikesGreaterThan?.toInt(),
             page.toInt(),
             pageSize.toInt()
         ))
