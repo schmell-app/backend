@@ -5,8 +5,6 @@ import no.schmell.backend.dtos.cms.*
 import no.schmell.backend.entities.cms.Question
 import no.schmell.backend.entities.cms.QuestionFunction
 import no.schmell.backend.entities.common.GameSession
-import no.schmell.backend.lib.defaults.defaultActiveWeeks
-import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.repositories.cms.GameRepository
 import no.schmell.backend.repositories.cms.QuestionFunctionRepository
 import no.schmell.backend.repositories.cms.QuestionRepository
@@ -39,7 +37,6 @@ class QuestionsService(
                 filter.relatedGame,
                 filter.questionType,
                 filter.questionSearch,
-                filter.weekNumbers,
                 filter.hasDislikes,
                 filter.dislikesGreaterThan,
                 PageRequest.of(filter.page - 1, filter.pageSize)
@@ -48,7 +45,6 @@ class QuestionsService(
                 filter.relatedGame,
                 filter.questionType,
                 filter.questionSearch,
-                filter.weekNumbers,
                 filter.hasDislikes,
                 filter.dislikesGreaterThan
         )
@@ -77,7 +73,6 @@ class QuestionsService(
             )) }
             Question(
                 null,
-                it.activeWeeks?.joinToString(",") ?: defaultActiveWeeks,
                 it.questionDescription,
                 it.phase,
                 relatedFunction,
@@ -85,7 +80,6 @@ class QuestionsService(
                 null,
                 relatedGame,
                 relatedQuestionType,
-                it.groupSize ?: GroupSize.All,
                 0
             )
         })
@@ -120,7 +114,6 @@ class QuestionsService(
 
         return questionRepository.save(Question(
             null,
-            dto.activeWeeks?.joinToString(",") ?: defaultActiveWeeks,
             dto.questionDescription,
             dto.phase,
             relatedFunction,
@@ -128,7 +121,6 @@ class QuestionsService(
             null,
             relatedGame,
             relatedQuestionType,
-            dto.groupSize ?: GroupSize.All,
             0
         )).toQuestionDto(filesService)
     }
@@ -137,7 +129,6 @@ class QuestionsService(
         val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val updatedQuestion = Question(
             question.id,
-            question.activeWeeks,
             question.questionDescription,
             question.phase,
             question.function,
@@ -145,7 +136,6 @@ class QuestionsService(
             question.questionPicture,
             question.relatedGame,
             question.questionType,
-            question.groupSize,
             question.dislikesCount + 1
         )
 
@@ -156,7 +146,6 @@ class QuestionsService(
         val question = questionRepository.findByIdOrNull(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val updatedQuestion = Question(
             question.id,
-            question.activeWeeks,
             question.questionDescription,
             question.phase,
             question.function,
@@ -164,7 +153,6 @@ class QuestionsService(
             question.questionPicture,
             question.relatedGame,
             question.questionType,
-            question.groupSize,
             if (question.dislikesCount > 0) question.dislikesCount - 1 else 0
         )
 
@@ -204,7 +192,6 @@ class QuestionsService(
 
         val updatedQuestion = Question(
             questionToUpdate.id,
-            dto.activeWeeks?.joinToString(",") ?: questionToUpdate.activeWeeks,
             dto.questionDescription ?: questionToUpdate.questionDescription,
             dto.phase ?: questionToUpdate.phase,
             relatedFunction ?: questionToUpdate.function,
@@ -212,7 +199,6 @@ class QuestionsService(
             questionToUpdate.questionPicture,
             questionToUpdate.relatedGame,
             questionType,
-            dto.groupSize ?: questionToUpdate.groupSize,
             questionToUpdate.dislikesCount
         )
 
@@ -230,7 +216,6 @@ class QuestionsService(
                 updatedQuestions.add(
                     QuestionDto(
                         question.id,
-                        question.activeWeeks,
                         updatedQuestionDescription,
                         question.phase,
                         question.function,
@@ -239,7 +224,6 @@ class QuestionsService(
                         question.relatedGame,
                         question.questionPicture?.let { file -> filesService.generatePresignedUrl("schmell-files", file)},
                         question.questionType,
-                        question.groupSize,
                         question.dislikesCount
                     )
                 )
@@ -282,7 +266,6 @@ class QuestionsService(
 
             questionRepository.save(Question(
                 question.id,
-                question.activeWeeks,
                 question.questionDescription,
                 question.phase,
                 question.function,
@@ -290,7 +273,6 @@ class QuestionsService(
                 uploadedFile?.fileName,
                 question.relatedGame,
                 question.questionType,
-                question.groupSize,
                 question.dislikesCount
             )).toQuestionDto(filesService)
         } else throw ResponseStatusException(HttpStatus.NOT_FOUND)
@@ -299,23 +281,12 @@ class QuestionsService(
     fun startGame(dto: GamePlayParams): GamePlayResponse {
         var questionsToPlay = this.questionRepository.findAllByRelatedGameId(dto.relatedGame)
 
-        val weekNumbers = listOf(dto.weekNumber)
-        questionsToPlay = questionsToPlay.filter { question ->
-            weekNumbers.any { it ->
-                val activeWeeksForQuestions = question.activeWeeks?.split(",")?.map { it.toInt() }
-                activeWeeksForQuestions?.contains(it) ?: false
-            }
-        }
         questionsToPlay = questionsToPlay.shuffled()
         questionsToPlay = questionsToPlay.sortedBy { it.phase }
 
         val questions = questionsToPlay.map { question -> question.toQuestionDto(filesService) }
 
-        val questionsWithPlayers = this.addPlayersToQuestions(dto.players, questions).filter { question ->
-            if (dto.players.size < 9) question.groupSize == GroupSize.S || question.groupSize == GroupSize.All
-            else if (dto.players.size < 17) question.groupSize == GroupSize.M || question.groupSize == GroupSize.All
-            else question.groupSize == GroupSize.L || question.groupSize == GroupSize.All
-        }
+        val questionsWithPlayers = this.addPlayersToQuestions(dto.players, questions)
         val relatedGame = gameRepository.findById(dto.relatedGame).orElse(null)
 
         gameSessionRepository.save(GameSession(
