@@ -1,0 +1,2 @@
+ALTER TABLE question DROP COLUMN IF EXISTS active_weeks;
+ALTER TABLE question DROP COLUMN IF EXISTS group_size;

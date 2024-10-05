@@ -1,8 +1,6 @@
 package no.schmell.backend.entities.cms
 
 import no.schmell.backend.dtos.cms.QuestionDto
-import no.schmell.backend.lib.defaults.defaultActiveWeeksSql
-import no.schmell.backend.lib.enums.GroupSize
 import no.schmell.backend.services.files.FilesService
 import javax.persistence.*
 
@@ -12,11 +10,6 @@ class Question(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id : Int?,
-
-    @Column(name = "active_weeks", nullable = false,
-        columnDefinition = "varchar(255) default $defaultActiveWeeksSql"
-    )
-    val activeWeeks : String?,
 
     @Column(name = "question_description", nullable = false)
     val questionDescription : String,
@@ -42,10 +35,6 @@ class Question(
     @JoinColumn(name = "question_type_id")
     val questionType: QuestionType,
 
-    @Column(name = "group_size", nullable = false, columnDefinition = "varchar(255) default 'All'")
-    @Enumerated(EnumType.STRING)
-    val groupSize: GroupSize,
-
     @Column(name = "dislikes_count", nullable = false, columnDefinition = "int default 0")
     val dislikesCount: Int,
 ) {
@@ -53,7 +42,6 @@ class Question(
         return this.let {
             QuestionDto(
                 it.id,
-                it.activeWeeks?.split(",")?.map { weekString -> weekString.toInt() },
                 it.questionDescription,
                 it.phase,
                 it.function?.toQuestionFunctionDto(),
@@ -62,7 +50,6 @@ class Question(
                 it.relatedGame.id!!,
                 it.questionPicture?.let { picture -> filesService.generatePresignedUrl("schmell-files", picture) },
                 it.questionType.toQuestionTypeDto(),
-                it.groupSize,
                 it.dislikesCount
             )
         }

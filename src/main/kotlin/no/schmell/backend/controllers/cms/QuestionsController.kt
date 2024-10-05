@@ -18,7 +18,6 @@ class QuestionsController(val questionsService: QuestionsService) {
     @GetMapping("/")
     fun getQuestions(
         @RequestParam(value = "relatedGame", required = false) relatedGame: String?,
-        @RequestParam(value = "weekNumbers", required = false) weekNumbers: String?,
         @RequestParam(value = "questionType", required = false) questionType: String?,
         @RequestParam(value = "questionSearch", required = false) questionSearch: String?,
         @RequestParam(value = "hasDislikes", required = false) hasDislikes: String?,
@@ -28,7 +27,6 @@ class QuestionsController(val questionsService: QuestionsService) {
         ): QuestionPaginatedResponse =
         questionsService.getAll(QuestionFilter(
             relatedGame?.toInt(),
-            weekNumbers?.split(",")?.map { it.toInt() },
             questionType?.toInt(),
             questionSearch,
             hasDislikes?.toBoolean(),
